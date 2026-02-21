@@ -1,0 +1,129 @@
+# ===========================
+# Dependencies
+# ===========================
+node_modules/
+.pnp
+.pnp.js
+
+# ===========================
+# VuePress
+# ===========================
+# Build output
+dist/
+build/
+.vuepress/dist/
+docs/.vuepress/dist/
+
+# VuePress cache and temp files
+.cache/
+.temp/
+**/.vuepress/.cache/
+**/.vuepress/.temp/
+
+# ===========================
+# Logs
+# ===========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===========================
+# Runtime & Process
+# ===========================
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ===========================
+# Testing & Coverage
+# ===========================
+coverage/
+*.lcov
+.nyc_output/
+
+# ===========================
+# Environment & Secrets
+# ===========================
+.env
+.env.*
+!.env.example
+
+# ===========================
+# Caches
+# ===========================
+.eslintcache
+.npm/
+.yarn/
+
+# ===========================
+# OS Files
+# ===========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# ===========================
+# IDE & Editors
+# ===========================
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# JetBrains IDEs
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Visual Studio
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Vim
+*.swp
+*.swo
+*~
+
+# ===========================
+# Project Specific
+
+# Codex work logs
+.codex/
+verification.md
+
+# Local temp files
+_tmp_*
+# ===========================
+
+# Ignore .agent directory except documentation
+.agent/*
+!.agent/PROJECT_OVERVIEW.md
+!.agent/TROUBLESHOOTING.md
+!.agent/SESSION_REPORT.md
+!.agent/workflows/
+
+# ===========================
+# Optional: Uncomment if needed
+# ===========================
+# Lock files (uncomment to ignore)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+test-results/

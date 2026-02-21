@@ -1,0 +1,349 @@
+/* ==================== Navbar Logo & Site Name Styling ==================== */
+
+/* Make navbar logo smaller and vertically centered */
+.vp-navbar .vp-site-name-logo,
+.vp-navbar .logo,
+.vp-navbar .vp-brand img,
+.vp-site-info .vp-site-name-logo {
+  height: 22px !important;
+  width: auto !important;
+  vertical-align: middle !important;
+}
+
+/* Site name "拾语" styling - bolder font with letter-spacing */
+.vp-navbar .vp-site-name,
+.vp-site-info .vp-site-name {
+  font-weight: 800 !important;
+  letter-spacing: 0.15em !important;
+  font-size: 1.25rem !important;
+  vertical-align: middle !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+/* Ensure navbar brand area is horizontally aligned */
+.vp-navbar .vp-site-info,
+.vp-navbar .vp-brand {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+/* 去掉标题前的锚点占位，避免出现"空一格" */
+.bilingual-reader h1>.header-anchor,
+#markdown-content>h1>.header-anchor {
+  display: none;
+}
+
+/* ==================== Landing Page Global Fixes ==================== */
+
+/* Remove ALL navbar borders globally */
+.vp-navbar {
+  border-bottom: none !important;
+  box-shadow: none !important;
+  border: none !important;
+
+  &::after,
+  &::before {
+    display: none !important;
+    content: none !important;
+  }
+}
+
+/* Target the specific border that VuePress Hope adds */
+header.vp-navbar,
+nav.vp-navbar,
+#navbar {
+  border-bottom: none !important;
+  box-shadow: none !important;
+}
+
+/* Landing page specific - comprehensive reset */
+.landing-page-wrapper {
+
+  /* Remove navbar styling */
+  .vp-navbar,
+  header.vp-navbar,
+  nav.vp-navbar,
+  header,
+  nav {
+    border-bottom: none !important;
+    box-shadow: none !important;
+    border: none !important;
+
+    &::after,
+    &::before {
+      display: none !important;
+      content: none !important;
+    }
+  }
+
+  /* Full width content - remove side margins */
+  .vp-page {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .theme-hope-content {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .vp-article-wrapper {
+    max-width: 100% !important;
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Remove any container max-width */
+  .vp-container,
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+  }
+
+  /* Hide sidebar mask */
+  .vp-sidebar-mask {
+    display: none !important;
+  }
+
+  /* Remove any hr elements */
+  hr {
+    display: none !important;
+  }
+
+  /* Hide the page title element (this creates the horizontal line!) */
+  .vp-page-title {
+    display: none !important;
+  }
+}
+
+/* Fix: some themes use .theme-container for width limits */
+
+/* REMOVE TOP LINE & TITLE (Priority Fix for Landing Page Only) */
+.landing-page-body .vp-page-title,
+.landing-page-body .page-title,
+.landing-page-body .vp-page-meta,
+.landing-page-body .page-info,
+.landing-page-body hr {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure full width and no scroll on Landing Page */
+.landing-page-body.landing-page-body {
+  overflow-x: hidden !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+}
+
+/* Aggressively force ALL layout containers to be full width */
+.landing-page-body .theme-container,
+.landing-page-body .vp-page,
+.landing-page-body .theme-hope-content,
+.landing-page-body .vp-article-wrapper,
+.landing-page-body .vp-page-content,
+.landing-page-body .content,
+.landing-page-body .main-container,
+.landing-page-body main {
+  max-width: 100vw !important;
+  width: 100vw !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  overflow-x: hidden !important;
+  transform: none !important;
+}
+
+/* Reset specific padding/margins on ALL divs in the chain to remove the 750px offset */
+.landing-page-body .theme-container>div,
+.landing-page-body .vp-page>div,
+.landing-page-body .theme-hope-content>div {
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove side padding specifically on content containers */
+.landing-page-body .theme-hope-content,
+.landing-page-body .theme-default-content,
+.landing-page-body div[class*="content"] {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Navbar Styling for Landing Page (Glassmorphism) */
+.landing-page-body .vp-navbar,
+.landing-page-body header.vp-navbar,
+.landing-page-body #navbar {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+  /* z-index must be higher than landing page (10) */
+  z-index: 100 !important;
+}
+
+.landing-page-body .vp-navbar .vp-site-name,
+.landing-page-body .vp-navbar .nav-link,
+.landing-page-body .vp-navbar .vp-action-link,
+.landing-page-body .vp-navbar .navbar-items {
+  color: #1e293b !important;
+  /* Ensure text is dark readable on light glass */
+}
+
+/* Increase spacing between navbar items */
+.vp-navbar .vp-navbar-config .vp-navbar-menu .nav-item,
+.vp-navbar .nav-item>.nav-link,
+.vp-navbar .nav-item>.dropdown-wrapper>.dropdown-title {
+  margin-left: 1.5rem !important;
+  margin-right: 1.5rem !important;
+}
+
+/* Adjust the icon spacing specifically */
+.vp-navbar .nav-item .nav-link .font-icon,
+.vp-navbar .nav-item .dropdown-title .font-icon {
+  margin-right: 0.5rem !important;
+}
+
+/* Restore navbar styling for non-landing pages */
+body:not(.landing-page-body) {
+
+  .vp-navbar,
+  header.vp-navbar,
+  nav.vp-navbar,
+  #navbar {
+    background: var(--bg-color-float, #fff) !important;
+    border-bottom: 1px solid var(--border-color, #eaecef) !important;
+    box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* Hide VuePress theme page icon for custom-title pages (vocabulary, sentences, api-settings, articles) */
+.vocabulary-notebook~.vp-page-title,
+.sentence-bank~.vp-page-title,
+.api-settings-container~.vp-page-title,
+.article-manager~.vp-page-title,
+.theme-hope-content:has(.vocabulary-notebook) .vp-page-title,
+.theme-hope-content:has(.sentence-bank) .vp-page-title,
+.theme-hope-content:has(.api-settings-container) .vp-page-title,
+.theme-hope-content:has(.article-manager) .vp-page-title {
+  display: none !important;
+}
+
+/* Also hide the page icon that appears before the page title */
+.vp-page:has(.vocabulary-notebook) .vp-page-title,
+.vp-page:has(.sentence-bank) .vp-page-title,
+.vp-page:has(.api-settings-container) .vp-page-title,
+.vp-page:has(.article-manager) .vp-page-title,
+.vp-article:has(.vocabulary-notebook) .vp-page-title,
+.vp-article:has(.sentence-bank) .vp-page-title,
+.vp-article:has(.api-settings-container) .vp-page-title,
+.vp-article:has(.article-manager) .vp-page-title {
+  display: none !important;
+}
+
+/* Hide the standalone page icon that VuePress theme displays */
+.vp-page:has(.vocabulary-notebook)>.font-icon,
+.vp-page:has(.sentence-bank)>.font-icon,
+.vp-page:has(.api-settings-container)>.font-icon,
+.vp-page:has(.article-manager)>.font-icon,
+body:has(.vocabulary-notebook) .theme-hope-content>.font-icon,
+body:has(.sentence-bank) .theme-hope-content>.font-icon,
+body:has(.api-settings-container) .theme-hope-content>.font-icon,
+body:has(.article-manager) .theme-hope-content>.font-icon {
+  display: none !important;
+}
+
+/* Hide standalone page icons universally when using custom titles */
+.theme-hope-content>.font-icon:first-child,
+.vp-article>.font-icon:first-child {
+  display: none !important;
+}
+
+/* Hide the bank-header that was previously displaying sentence count */
+.sentence-bank .bank-header {
+  display: none !important;
+}
+
+/* ==================== Page Content Centering Fix ==================== */
+/* Fix for vocabulary, articles, sentences, and api-settings pages to ensure proper centering */
+
+/* Target the VuePress page container when it contains our custom components */
+.vp-page:has(.vocabulary-notebook),
+.vp-page:has(.article-manager),
+.vp-page:has(.sentence-bank),
+.vp-page:has(.api-settings-container) {
+  max-width: 100% !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Ensure the theme content wrapper takes full width */
+.theme-hope-content:has(.vocabulary-notebook),
+.theme-hope-content:has(.article-manager),
+.theme-hope-content:has(.sentence-bank),
+.theme-hope-content:has(.api-settings-container) {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Fix the vp-article-wrapper that sometimes causes offset */
+.vp-page:has(.vocabulary-notebook) .vp-article-wrapper,
+.vp-page:has(.article-manager) .vp-article-wrapper,
+.vp-page:has(.sentence-bank) .vp-article-wrapper,
+.vp-page:has(.api-settings-container) .vp-article-wrapper {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Ensure main element takes full width - use block layout, not flex */
+main.vp-page:has(.vocabulary-notebook),
+main.vp-page:has(.article-manager),
+main.vp-page:has(.sentence-bank),
+main.vp-page:has(.api-settings-container) {
+  display: block !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+/* Ensure the content wrapper takes full width */
+.vp-page:has(.vocabulary-notebook)>.theme-hope-content,
+.vp-page:has(.article-manager)>.theme-hope-content,
+.vp-page:has(.sentence-bank)>.theme-hope-content,
+.vp-page:has(.api-settings-container)>.theme-hope-content {
+  width: 100% !important;
+  display: block !important;
+}
+
+/* Make sure the child components span the full width of their parent (they handle their own max-width and centering) */
+.theme-hope-content>.vocabulary-notebook,
+.theme-hope-content>.article-manager,
+.theme-hope-content>.sentence-bank,
+.theme-hope-content>.api-settings-container {
+  width: 100% !important;
+}

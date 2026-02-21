@@ -1,0 +1,31 @@
+{
+    "name": "shiyu",
+    "version": "1.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vuepress dev docs",
+        "build": "vuepress build docs",
+        "test": "vitest run",
+        "clean": "rimraf docs/.vuepress/.cache docs/.vuepress/.temp docs/.vuepress/dist",
+        "dev:legacy": "vuepress dev docs",
+        "build:legacy": "vuepress build docs",
+        "test:legacy": "vitest run",
+        "dev:web": "pnpm -C apps/web dev",
+        "build:web": "pnpm -C apps/web build",
+        "dev:api": "pnpm -C apps/api dev",
+        "build:api": "pnpm -C apps/api build",
+        "test:api": "pnpm -C apps/api test",
+        "typecheck:api": "pnpm -C apps/api typecheck"
+    },
+    "devDependencies": {
+        "@vuepress/bundler-vite": "2.0.0-rc.26",
+        "rimraf": "^6.1.2",
+        "sass": "^1.97.3",
+        "vitest": "^4.0.18",
+        "vue": "^3.5.27",
+        "vuepress": "2.0.0-rc.26",
+        "vuepress-theme-hope": "2.0.0-rc.102"
+    },
+    "packageManager": "pnpm@10.28.2+sha512.41872f037ad22f7348e3b1debbaf7e867cfd448f2726d9cf74c08f19507c31d2c8e7a11525b983febc2df640b5438dee6023ebb1f84ed43cc2d654d2bc326264"
+}
