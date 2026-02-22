@@ -191,8 +191,8 @@ function formatDate(timestamp?: number) {
   justify-content: center;
   border-radius: 10px;
   color: #ffffff;
-  background: linear-gradient(135deg, #0284c7, #0f766e);
-  box-shadow: 0 8px 16px rgba(2, 132, 199, 0.3);
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.35);
 }
 
 .title-icon svg {
@@ -322,13 +322,30 @@ function formatDate(timestamp?: number) {
   border: 1px solid #dbe2ea;
   background: linear-gradient(180deg, #ffffff, #f8fafc);
   overflow: hidden;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.entry-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 
 .entry-item:hover {
-  border-color: #bae6fd;
-  box-shadow: 0 10px 22px rgba(14, 116, 144, 0.12);
-  transform: translateY(-1px);
+  border-color: #c4b5fd;
+  box-shadow: 0 12px 28px rgba(139, 92, 246, 0.15), 0 4px 12px rgba(139, 92, 246, 0.08);
+  transform: translateY(-2px);
+}
+
+.entry-item:hover::before {
+  opacity: 1;
 }
 
 .entry-link {
@@ -386,12 +403,19 @@ function formatDate(timestamp?: number) {
 .entry-action {
   flex-shrink: 0;
   border-radius: 999px;
-  border: 1px solid #5eead4;
-  background: linear-gradient(135deg, #14b8a6, #0ea5e9);
+  border: 1px solid #c4b5fd;
+  background: linear-gradient(135deg, #8b5cf6, #ec4899);
   color: #ffffff;
   font-size: 12px;
   font-weight: 700;
-  padding: 7px 12px;
+  padding: 7px 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+}
+
+.entry-item:hover .entry-action {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
 }
 
 .empty-state {
