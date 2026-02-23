@@ -36,12 +36,11 @@
                 @click="toggleToc" 
                 title="Contents"
             >
-                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-                    <line x1="3" y1="6" x2="21" y2="6"></line>
-                    <line x1="3" y1="12" x2="21" y2="12"></line>
-                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round">
+                    <line x1="4" y1="6" x2="20" y2="6"></line>
+                    <line x1="4" y1="12" x2="14" y2="12"></line>
+                    <line x1="4" y1="18" x2="18" y2="18"></line>
                 </svg>
-                <span v-if="toc.length > 0" class="toc-badge">{{ toc.length }}</span>
             </button>
 
             <transition name="slide">
@@ -144,6 +143,25 @@
                 @save="handleAnnotationSave"
                 @cancel="handleAnnotationCancel"
             />
+            <transition name="pop-fade">
+                <div v-if="annotationTooltip.visible" 
+                    class="ebook-annotation-tooltip"
+                    :class="{ 'is-sentence': annotationTooltip.type === 'sentence' }"
+                    :style="{ 
+                        position: 'fixed',
+                        top: (annotationTooltip.top - 10) + 'px', 
+                        left: annotationTooltip.left + 'px', 
+                        transform: 'translate(-50%, -100%)',
+                        zIndex: 1500
+                    }"
+                    @mouseleave="closeAnnotationTooltip"
+                >
+                    <div class="tooltip-arrow"></div>
+                    <div class="tooltip-content">
+                        {{ annotationTooltip.content }}
+                    </div>
+                </div>
+            </transition>
         </div>
     </div>
 </template>
@@ -157,6 +175,7 @@ import { useSentenceBank } from '../bilingual-pack-client/composables/useSentenc
 import { createNotebookOpener } from '../bilingual-pack-client/utils/notebookNavigation'
 import { listenForNavigation, WINDOW_NAMES } from '../bilingual-pack-client/utils/channelMessaging'
 import AnnotationForm from '../bilingual-pack-client/components/AnnotationForm.vue'
+import { getSentenceMeaning } from '../bilingual-pack-client/utils/sentenceExplanation'
 
 // Composables
 const { vocabulary, addWord, updateWord } = useVocabulary()
@@ -203,6 +222,15 @@ const annotationForm = ref({
     contextText: '',
     cfi: '' // Store CFI position for navigation
 })
+
+const annotationTooltip = ref({
+    visible: false,
+    top: 0,
+    left: 0,
+    content: '',
+    type: 'word' as 'word' | 'sentence'
+})
+let hoverTimer: number | null = null
 
 type AnnotationType = 'vocab' | 'sentence'
 
@@ -731,6 +759,98 @@ function blinkHighlight(doc: Document, highlightId: string, type: 'word' | 'sent
     }
 }
 
+function handleHighlightHover(event: MouseEvent) {
+    const target = event.target as HTMLElement | null
+    if (!target) return
+    
+    const mark = target.closest('mark.highlight-vocab, mark.highlight-sentence') as HTMLElement | null
+    if (!mark) return
+    
+    // Clear previous timer
+    if (hoverTimer) {
+        clearTimeout(hoverTimer)
+        hoverTimer = null
+    }
+    
+    // Handle word hover
+    if (mark.classList.contains('highlight-vocab')) {
+        const wordId = mark.dataset.wordId
+        if (!wordId) return
+        
+        const word = vocabulary.value.find(w => w.id === wordId)
+        if (!word || !word.meaning) return
+        
+        hoverTimer = window.setTimeout(() => {
+            const rect = mark.getBoundingClientRect()
+            let offsetTop = 0
+            let offsetLeft = 0
+            const doc = mark.ownerDocument
+            const win = doc?.defaultView
+            if (win && win.frameElement) {
+                const iframeRect = (win.frameElement as HTMLIFrameElement).getBoundingClientRect()
+                offsetTop = iframeRect.top
+                offsetLeft = iframeRect.left
+            }
+            annotationTooltip.value = {
+                visible: true,
+                top: rect.top + offsetTop - 10,
+                left: rect.left + offsetLeft + rect.width / 2,
+                content: word.meaning,
+                type: 'word'
+            }
+        }, 200)
+        return
+    }
+    
+    // Handle sentence hover
+    if (mark.classList.contains('highlight-sentence')) {
+        const sentenceId = mark.dataset.sentenceId
+        if (!sentenceId) return
+        
+        const sentence = sentences.value.find(s => s.id === sentenceId)
+        if (!sentence) return
+        
+        hoverTimer = window.setTimeout(() => {
+            const rect = mark.getBoundingClientRect()
+            let offsetTop = 0
+            let offsetLeft = 0
+            const doc = mark.ownerDocument
+            const win = doc?.defaultView
+            if (win && win.frameElement) {
+                const iframeRect = (win.frameElement as HTMLIFrameElement).getBoundingClientRect()
+                offsetTop = iframeRect.top
+                offsetLeft = iframeRect.left
+            }
+            const contentText = getSentenceMeaning(sentence.explanation)
+            annotationTooltip.value = {
+                visible: true,
+                top: rect.top + offsetTop - 10,
+                left: rect.left + offsetLeft + rect.width / 2,
+                content: contentText,
+                type: 'sentence'
+            }
+        }, 200)
+    }
+}
+
+function handleHighlightLeave(event: MouseEvent) {
+    if (hoverTimer) {
+        clearTimeout(hoverTimer)
+        hoverTimer = null
+    }
+    
+    const relatedTarget = event.relatedTarget as HTMLElement | null
+    if (relatedTarget?.closest('.ebook-annotation-tooltip')) {
+        return
+    }
+    
+    annotationTooltip.value.visible = false
+}
+
+function closeAnnotationTooltip() {
+    annotationTooltip.value.visible = false
+}
+
 function handleAnnotationMarkClick(event: Event) {
     const target = event.target as HTMLElement | null
     console.log('Click event triggered on:', target)
@@ -785,13 +905,16 @@ function handleSectionLoad(event: CustomEvent) {
         doc.addEventListener('mouseup', handleTextSelection)
         doc.addEventListener('touchend', handleTextSelection)
         doc.addEventListener('click', handleAnnotationMarkClick, true) // Use capture phase
+
+        doc.addEventListener('mouseenter', handleHighlightHover, true)
+        doc.addEventListener('mouseleave', handleHighlightLeave, true)
         
         const style = doc.createElement('style')
         style.textContent = `
             .highlight-vocab { 
-                background-color: transparent !important; 
-                border-bottom: 2px solid #3eaf7c !important;
-                color: inherit !important;
+                background-color: transparent; 
+                border-bottom: 2px solid #3eaf7c;
+                color: inherit;
                 cursor: pointer;
                 padding: 0;
                 display: inline;
@@ -801,9 +924,9 @@ function handleSectionLoad(event: CustomEvent) {
                 transition: background-color 0.3s ease, border-bottom-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
             }
             .highlight-sentence { 
-                background-color: rgba(74, 144, 226, 0.15) !important; 
+                background-color: rgba(74, 144, 226, 0.15); 
                 border-bottom: none;
-                color: inherit !important;
+                color: inherit;
                 cursor: pointer;
                 padding: 0;
                 display: inline;
@@ -811,6 +934,14 @@ function handleSectionLoad(event: CustomEvent) {
                 box-decoration-break: clone;
                 -webkit-box-decoration-break: clone;
                 transition: background-color 0.3s ease, border-bottom-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            }
+
+            .highlight-vocab:hover {
+                background-color: rgba(62, 175, 124, 0.12);
+                border-bottom-color: #2d9e6a;
+            }
+            .highlight-sentence:hover {
+                background-color: rgba(74, 144, 226, 0.25);
             }
             .highlight-vocab.flashing {
                 animation: flash-word 1s ease-in-out 3;
@@ -915,10 +1046,25 @@ function handleTextSelection(event: Event) {
 function highlightSelection(type: 'vocab' | 'sentence'): HTMLElement | null {
     const range = selectionPopover.value.range
     if (!range) return null
-
     try {
         const doc = range.commonAncestorContainer.ownerDocument
         if (!doc) return null
+        // Trim whitespace from range
+        const text = range.toString()
+        const trimmedText = text.trim()
+        if (!trimmedText) return null
+        
+        // Calculate how many characters to trim from start and end
+        const startTrim = text.length - text.trimStart().length
+        const endTrim = text.length - text.trimEnd().length
+        
+        // Adjust range to exclude leading/trailing whitespace
+        if (startTrim > 0) {
+            range.setStart(range.startContainer, range.startOffset + startTrim)
+        }
+        if (endTrim > 0) {
+            range.setEnd(range.endContainer, range.endOffset - endTrim)
+        }
         const mark = doc.createElement('mark')
         mark.className = type === 'vocab' ? 'highlight-vocab' : 'highlight-sentence'
         try {
@@ -1746,50 +1892,75 @@ onUnmounted(() => {
     top: 50%;
     left: 0;
     transform: translateY(-50%);
-    width: 48px;
-    height: 64px;
-    border-radius: 0 12px 12px 0;
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    width: 52px;
+    height: 72px;
+    border-radius: 0 16px 16px 0;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
-    border-left: none;
     color: #ffffff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 2px 0 16px rgba(102, 126, 234, 0.4);
-    transition: all 0.3s ease;
+    box-shadow: 
+        2px 0 24px rgba(102, 126, 234, 0.35),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     z-index: 999;
     gap: 4px;
+    font-family: "Segoe UI", "Microsoft YaHei", "微软雅黑", sans-serif;
+    animation: pulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 
+            2px 0 24px rgba(102, 126, 234, 0.35),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    }
+    50% {
+        box-shadow: 
+            2px 0 32px rgba(102, 126, 234, 0.5),
+            0 0 20px rgba(118, 75, 162, 0.3),
+            0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+    }
 }
 
 .toc-toggle-btn:hover {
-    width: 56px;
-    box-shadow: 2px 0 20px rgba(102, 126, 234, 0.5);
+    width: 60px;
+    background: linear-gradient(135deg, #7c8ef5 0%, #8b5bb8 100%);
+    box-shadow: 
+        2px 0 36px rgba(102, 126, 234, 0.6),
+        0 0 24px rgba(118, 75, 162, 0.4),
+        0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    animation: none;
 }
 
 .toc-toggle-btn.active {
-    background: linear-gradient(135deg, #764ba2, #667eea);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
     left: 320px;
+    animation: none;
 }
 
 .toc-badge {
     position: absolute;
     top: 8px;
     right: 8px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 5px;
-    background: #ef4444;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
     color: #ffffff;
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
-    border-radius: 9px;
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+    box-shadow: 
+        0 2px 8px rgba(239, 68, 68, 0.5),
+        0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 /* Sidebar */
@@ -1799,27 +1970,58 @@ onUnmounted(() => {
     left: 0;
     width: 320px;
     height: 100vh;
-    background: #ffffff;
-    box-shadow: 2px 0 40px rgba(0, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 
+        2px 0 48px rgba(102, 126, 234, 0.12),
+        0 0 0 1px rgba(102, 126, 234, 0.08);
     z-index: 1000;
     display: flex;
     flex-direction: column;
-    
-    @media (prefers-color-scheme: dark) {
-        background: #1e1e2d;
+    font-family: "Segoe UI", "Microsoft YaHei", "微软雅黑", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+    .toc-sidebar {
+        background: rgba(30, 30, 45, 0.9);
+        backdrop-filter: blur(24px) saturate(180%);
+        -webkit-backdrop-filter: blur(24px) saturate(180%);
+        box-shadow: 
+            2px 0 48px rgba(102, 126, 234, 0.2),
+            0 0 0 1px rgba(167, 139, 250, 0.15);
     }
 }
 
 .toc-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 1.75rem 1.5rem 1.5rem;
+    border-bottom: 1px solid rgba(102, 126, 234, 0.12);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: linear-gradient(180deg, #f8fafc, #ffffff);
+    background: linear-gradient(180deg, rgba(248, 250, 252, 0.6), rgba(255, 255, 255, 0.3));
+    position: relative;
+}
+
+.toc-header::before {
+    content: "";
+    position: absolute;
+    left: 1.5rem;
+    bottom: -1px;
+    width: 48px;
+    height: 3px;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    border-radius: 3px 3px 0 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .toc-header {
+        background: linear-gradient(180deg, rgba(42, 45, 58, 0.6), rgba(30, 30, 45, 0.3));
+        border-bottom-color: rgba(167, 139, 250, 0.2);
+    }
     
-    @media (prefers-color-scheme: dark) {
-        background: linear-gradient(180deg, #2a2d3a, #1e1e2d);
+    .toc-header::before {
+        background: linear-gradient(90deg, #a78bfa, #818cf8);
     }
 }
 
@@ -1831,52 +2033,69 @@ onUnmounted(() => {
 
 .toc-header h3 {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #0f172a;
-    
-    @media (prefers-color-scheme: dark) {
-        color: #fff;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+}
+
+@media (prefers-color-scheme: dark) {
+    .toc-header h3 {
+        background: linear-gradient(135deg, #a78bfa, #818cf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
     }
 }
 
 .toc-count {
     font-size: 0.75rem;
     font-weight: 600;
-    color: #64748b;
-    background: #f1f5f9;
-    padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    
-    @media (prefers-color-scheme: dark) {
-        background: rgba(255, 255, 255, 0.1);
-        color: #94a3b8;
+    color: #667eea;
+    background: rgba(102, 126, 234, 0.1);
+    padding: 0.3rem 0.6rem;
+    border-radius: 8px;
+    border: 1px solid rgba(102, 126, 234, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+    .toc-count {
+        background: rgba(167, 139, 250, 0.15);
+        color: #a78bfa;
+        border-color: rgba(167, 139, 250, 0.25);
     }
 }
 
 .close-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    background: transparent;
-    border: 1px solid #e2e8f0;
-    color: #64748b;
-    font-size: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: rgba(102, 126, 234, 0.08);
+    border: 1px solid rgba(102, 126, 234, 0.15);
+    color: #667eea;
+    font-size: 18px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .close-btn:hover {
-    background: #f1f5f9;
-    color: #0f172a;
-    border-color: #cbd5e1;
-    
-    @media (prefers-color-scheme: dark) {
-        background: rgba(255, 255, 255, 0.1);
-        color: #fff;
+    background: rgba(102, 126, 234, 0.15);
+    color: #764ba2;
+    border-color: rgba(102, 126, 234, 0.3);
+    transform: rotate(90deg);
+}
+
+@media (prefers-color-scheme: dark) {
+    .close-btn:hover {
+        background: rgba(167, 139, 250, 0.2);
+        color: #a78bfa;
+        border-color: rgba(167, 139, 250, 0.35);
     }
 }
 
@@ -1884,6 +2103,36 @@ onUnmounted(() => {
     flex: 1;
     overflow-y: auto;
     padding: 1rem 0;
+}
+
+/* Custom scrollbar */
+.toc-content::-webkit-scrollbar {
+    width: 6px;
+}
+
+.toc-content::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 8px 0;
+}
+
+.toc-content::-webkit-scrollbar-thumb {
+    background: rgba(102, 126, 234, 0.2);
+    border-radius: 3px;
+    transition: background 0.2s ease;
+}
+
+.toc-content::-webkit-scrollbar-thumb:hover {
+    background: rgba(102, 126, 234, 0.35);
+}
+
+@media (prefers-color-scheme: dark) {
+    .toc-content::-webkit-scrollbar-thumb {
+        background: rgba(167, 139, 250, 0.25);
+    }
+    
+    .toc-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(167, 139, 250, 0.4);
+    }
 }
 
 .toc-list {
@@ -1896,72 +2145,122 @@ onUnmounted(() => {
     list-style: none;
     margin: 0;
     padding: 0;
+    animation: slideInItem 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.toc-item:nth-child(1) { animation-delay: 0.03s; }
+.toc-item:nth-child(2) { animation-delay: 0.06s; }
+.toc-item:nth-child(3) { animation-delay: 0.09s; }
+.toc-item:nth-child(4) { animation-delay: 0.12s; }
+.toc-item:nth-child(5) { animation-delay: 0.15s; }
+.toc-item:nth-child(6) { animation-delay: 0.18s; }
+.toc-item:nth-child(7) { animation-delay: 0.21s; }
+.toc-item:nth-child(8) { animation-delay: 0.24s; }
+.toc-item:nth-child(9) { animation-delay: 0.27s; }
+.toc-item:nth-child(10) { animation-delay: 0.30s; }
+
+@keyframes slideInItem {
+    0% {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.toc-item a {
+    display: block;
+    padding: 14px 24px;
+    color: #475569;
+    text-decoration: none;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-left: 3px solid transparent;
+    position: relative;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.toc-item a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: linear-gradient(180deg, #667eea, #764ba2);
+    transform: scaleY(0);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.toc-item a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.08), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.toc-item a:hover {
+    color: #667eea;
+    transform: translateX(6px);
+    padding-left: 28px;
+}
+
+.toc-item a:hover::after {
+    opacity: 1;
+}
+
+.toc-item a:hover::before {
+    transform: scaleY(1);
+}
+
+.toc-item.active > a {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.12), rgba(118, 75, 162, 0.06));
+    color: #667eea;
+    border-left-color: transparent;
+    font-weight: 700;
+    padding-left: 28px;
+}
+
+.toc-item.active > a::before {
+    transform: scaleY(1);
+    width: 5px;
+}
+
+.toc-item.active > a::after {
+    opacity: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+    .toc-item a {
+        color: #cbd5e1;
+    }
     
-    a {
-        display: block;
-        padding: 12px 24px;
-        color: #4a5568;
-        text-decoration: none;
-        font-size: 0.95rem;
-        line-height: 1.5;
-        transition: all 0.2s ease;
-        border-left: 3px solid transparent;
-        position: relative;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        
-        &::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 3px;
-            background: linear-gradient(180deg, #667eea, #764ba2);
-            transform: scaleY(0);
-            transition: transform 0.2s ease;
-        }
-        
-        &:hover {
-            background: rgba(102, 126, 234, 0.05);
-            color: #667eea;
-        }
-        
-        &:hover::before {
-            transform: scaleY(1);
-        }
+    .toc-item a::after {
+        background: linear-gradient(90deg, rgba(167, 139, 250, 0.12), transparent);
     }
-
-    &.active > a {
-        background: rgba(102, 126, 234, 0.08);
-        color: #667eea;
-        border-left-color: transparent;
-        font-weight: 600;
-
-        &::before {
-            transform: scaleY(1);
-        }
+    
+    .toc-item a:hover {
+        color: #a78bfa;
     }
-
-    @media (prefers-color-scheme: dark) {
-        a {
-            color: #cbd5e1;
-            
-            &:hover {
-                background: rgba(102, 126, 234, 0.15);
-                color: #a78bfa;
-            }
-        }
-        
-        &.active > a {
-            background: rgba(102, 126, 234, 0.2);
-            color: #a78bfa;
-            
-            &::before {
-                background: linear-gradient(180deg, #a78bfa, #818cf8);
-            }
-        }
+    
+    .toc-item.active > a {
+        background: linear-gradient(90deg, rgba(167, 139, 250, 0.18), rgba(129, 140, 248, 0.08));
+        color: #a78bfa;
+    }
+    
+    .toc-item.active > a::before {
+        background: linear-gradient(180deg, #a78bfa, #818cf8);
     }
 }
 
@@ -1969,21 +2268,39 @@ onUnmounted(() => {
     padding-left: 0;
     list-style: none;
     margin: 0;
-    
-    .toc-subitem {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        
-        a {
-            padding-left: 40px;
-            font-size: 0.9rem;
-            color: #64748b;
-            
-            @media (prefers-color-scheme: dark) {
-                color: #94a3b8;
-            }
-        }
+}
+
+.toc-subitem {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    animation: slideInItem 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+}
+
+.toc-subitem:nth-child(1) { animation-delay: 0.06s; }
+.toc-subitem:nth-child(2) { animation-delay: 0.09s; }
+.toc-subitem:nth-child(3) { animation-delay: 0.12s; }
+.toc-subitem:nth-child(4) { animation-delay: 0.15s; }
+.toc-subitem:nth-child(5) { animation-delay: 0.18s; }
+
+.toc-subitem a {
+    padding-left: 48px;
+    font-size: 0.88rem;
+    color: #64748b;
+    font-weight: 400;
+}
+
+.toc-subitem a:hover {
+    padding-left: 52px;
+}
+
+.toc-subitem.active > a {
+    padding-left: 52px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .toc-subitem a {
+        color: #94a3b8;
     }
 }
 
@@ -1995,55 +2312,63 @@ onUnmounted(() => {
     flex-direction: column;
     align-items: center;
     gap: 0.75rem;
-    
-    svg {
-        color: #cbd5e1;
-        margin-bottom: 0.5rem;
-        
-        @media (prefers-color-scheme: dark) {
-            color: #475569;
-        }
+}
+
+.empty-toc svg {
+    color: #cbd5e1;
+    margin-bottom: 0.5rem;
+    opacity: 0.6;
+}
+
+@media (prefers-color-scheme: dark) {
+    .empty-toc svg {
+        color: #475569;
     }
-    
-    p {
-        margin: 0;
-        font-size: 1rem;
-        font-weight: 600;
-        color: #64748b;
-        
-        @media (prefers-color-scheme: dark) {
-            color: #94a3b8;
-        }
-    }
-    
-    span {
-        font-size: 0.85rem;
+}
+
+.empty-toc p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #64748b;
+}
+
+@media (prefers-color-scheme: dark) {
+    .empty-toc p {
         color: #94a3b8;
-        
-        @media (prefers-color-scheme: dark) {
-            color: #64748b;
-        }
+    }
+}
+
+.empty-toc span {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+@media (prefers-color-scheme: dark) {
+    .empty-toc span {
+        color: #64748b;
     }
 }
 
 .toc-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
     z-index: 999;
 }
 
 /* Transitions */
 .slide-enter-active, .slide-leave-active {
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .slide-enter-from, .slide-leave-to {
     transform: translateX(-100%);
 }
 
 .fade-enter-active, .fade-leave-active {
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
 }
 .fade-enter-from, .fade-leave-to {
     opacity: 0;
@@ -2228,5 +2553,50 @@ onUnmounted(() => {
 
 @keyframes toast-spin {
     to { transform: rotate(360deg); }
+}
+
+.ebook-annotation-tooltip {
+    filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.12));
+    animation: tooltipIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: auto;
+}
+.ebook-annotation-tooltip.is-sentence .tooltip-content {
+    background: rgba(102, 126, 234, 0.85);
+}
+@keyframes tooltipIn {
+    from { opacity: 0; transform: translate(-50%, -100%) translateY(6px); }
+    to { opacity: 1; transform: translate(-50%, -100%) translateY(0); }
+}
+.ebook-annotation-tooltip .tooltip-arrow {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    width: 10px;
+    height: 10px;
+    background: inherit;
+    transform: translateX(-50%) rotate(45deg);
+    border-radius: 0 0 2px 0;
+}
+.ebook-annotation-tooltip .tooltip-content {
+    position: relative;
+    background: rgba(62, 175, 124, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-radius: 10px;
+    padding: 12px 16px;
+    max-width: 320px;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #ffffff;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+    white-space: normal;
+    word-wrap: break-word;
+}
+html.dark .ebook-annotation-tooltip .tooltip-content {
+    background: rgba(44, 140, 99, 0.9);
+}
+html.dark .ebook-annotation-tooltip.is-sentence .tooltip-content {
+    background: rgba(90, 103, 216, 0.9);
 }
 </style>

@@ -423,6 +423,7 @@ onUnmounted(() => {
 }
 
 .annotation-form {
+  font-family: "Segoe UI", "Microsoft YaHei", "微软雅黑", sans-serif;
   background: #fff;
   border-radius: 12px;
   width: 90%;
@@ -514,6 +515,7 @@ onUnmounted(() => {
   resize: vertical;
   transition: border-color 0.2s;
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 .sentence-field input {
@@ -525,6 +527,7 @@ onUnmounted(() => {
   line-height: 1.4;
   transition: border-color 0.2s;
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 .input-group textarea:focus {
@@ -621,6 +624,7 @@ onUnmounted(() => {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
+  font-family: inherit;
 }
 
 .btn-cancel {
