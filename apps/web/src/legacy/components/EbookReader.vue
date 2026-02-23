@@ -1,15 +1,13 @@
-<template>
+﻿<template>
     <div class="ebook-reader">
-        <!-- 自动打开电子书时，显示加载态，避免出现中间提示页 -->
         <div v-if="!bookLoaded && isAutoLoading" class="empty-state">
             <div class="empty-content">
                 <div class="boot-loading-spinner"></div>
-                <h2 class="title">正在打开电子书</h2>
-                <p class="subtitle">请稍候，马上进入阅读内容…</p>
+                <h2 class="title">Opening ebook</h2>
+                <p class="subtitle">Please wait, loading reading content...</p>
             </div>
         </div>
 
-        <!-- 未加载书籍时的提示 -->
         <div v-else-if="!bookLoaded" class="empty-state">
             <div class="empty-content">
                 <div class="icon-wrapper">
@@ -17,50 +15,74 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
                     </svg>
                 </div>
-                <h2 class="title">请选择一本电子书</h2>
-                <p class="subtitle">请前往 <a href="/ebooks.html">电子书列表</a> 选择要阅读的书籍</p>
+                <h2 class="title">Please choose an ebook</h2>
+                <p class="subtitle">Go to <a href="/ebooks.html">Ebook List</a> and choose a book to read</p>
             </div>
         </div>
 
-        <!-- 阅读器主区域 -->
         <div v-else class="reader-container">
-            <!-- 目录侧边栏 -->
-            <transition name="slide">
-                <div v-if="showToc" class="toc-sidebar">
-                    <div class="toc-header">
-                        <h3>目录</h3>
-                        <button class="close-toc-btn" @click="showToc = false">✕</button>
+            <transition name="fade">
+                <div v-if="isRestoringProgress" class="progress-toast">
+                    <div class="toast-content">
+                        <div class="toast-spinner"></div>
+                        <span>Jumping to your last reading position...</span>
                     </div>
-                    <div class="toc-content custom-scrollbar">
-                        <ul v-if="toc.length">
-                            <li v-for="(item, index) in toc" :key="index" class="toc-item">
+                </div>
+            </transition>
+
+            <button 
+                class="toc-toggle-btn" 
+                :class="{ active: showToc }" 
+                @click="toggleToc" 
+                title="Contents"
+            >
+                <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+                <span v-if="toc.length > 0" class="toc-badge">{{ toc.length }}</span>
+            </button>
+
+            <transition name="slide">
+                <aside v-if="showToc" class="toc-sidebar">
+                    <div class="toc-header">
+                        <div class="toc-title-wrapper">
+                            <h3>Contents</h3>
+                            <span v-if="toc.length > 0" class="toc-count">{{ toc.length }} items</span>
+                        </div>
+                        <button class="close-btn" @click="showToc = false">&#x2715;</button>
+                    </div>
+                    
+                    <nav class="toc-content custom-scrollbar">
+                        <ul v-if="toc.length > 0" class="toc-list">
+                            <li v-for="(item, index) in toc" :key="index" class="toc-item" :class="{ active: activeHref === item.href }">
                                 <a href="javascript:void(0)" @click="handleTocClick(item.href)" :title="item.label">{{ item.label }}</a>
                                 <ul v-if="item.subitems && item.subitems.length" class="toc-subitems">
-                                     <li v-for="(sub, subIndex) in item.subitems" :key="subIndex" class="toc-subitem">
+                                     <li v-for="(sub, subIndex) in item.subitems" :key="subIndex" class="toc-subitem" :class="{ active: activeHref === sub.href }">
                                         <a href="javascript:void(0)" @click="handleTocClick(sub.href)" :title="sub.label">{{ sub.label }}</a>
                                      </li>
                                 </ul>
                             </li>
                         </ul>
-                        <div v-else class="empty-toc">暂无目录</div>
-                    </div>
-                </div>
+                        <div v-else class="empty-toc">
+                            <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none">
+                                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <p>No contents</p>
+                            <span>No table of contents found in this ebook</span>
+                        </div>
+                    </nav>
+                </aside>
             </transition>
             
-            <!-- 遮罩层 -->
-            <div v-if="showToc" class="toc-overlay" @click="showToc = false"></div>
+            <transition name="fade">
+                <div v-if="showToc" class="toc-overlay" @click="showToc = false"></div>
+            </transition>
 
-            <!-- 顶部工具栏 -->
             <div class="reader-toolbar">
                 <div class="toolbar-content-wrapper">
                     <div class="toolbar-left">
-                        <button class="toolbar-btn menu-btn" @click="toggleToc" title="目录">
-                            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="3" y1="12" x2="21" y2="12"></line>
-                                <line x1="3" y1="6" x2="21" y2="6"></line>
-                                <line x1="3" y1="18" x2="21" y2="18"></line>
-                            </svg>
-                        </button>
                         <div class="book-info">
                             <span class="book-title" :title="bookTitle">{{ bookTitle }}</span>
                         </div>
@@ -72,7 +94,7 @@
                                 <div class="progress-fill" :style="{ width: (progress * 100) + '%' }"></div>
                             </div>
                         </div>
-                        <button class="toolbar-btn close-btn" @click="handleCloseAction" title="返回电子书列表">
+                        <button class="toolbar-btn close-btn" @click="handleCloseAction" title="Back to ebook list">
                             <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="18" y1="6" x2="6" y2="18"></line>
                                 <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -82,32 +104,30 @@
                 </div>
             </div>
 
-            <!-- 书籍内容区域 -->
             <div class="reader-main">
-                <button class="nav-btn prev" @click="goPrev" :disabled="!canGoPrev" title="上一页">
+                <button class="nav-btn prev" @click="goPrev" :disabled="!canGoPrev" title="Previous page">
                     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M15 18l-6-6 6-6"/>
                     </svg>
                 </button>
                 <div ref="viewerContainer" class="viewer-container card-effect"></div>
-                <button class="nav-btn next" @click="goNext" :disabled="!canGoNext" title="下一页">
+                <button class="nav-btn next" @click="goNext" :disabled="!canGoNext" title="Next page">
                     <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M9 18l6-6-6-6"/>
                     </svg>
                 </button>
             </div>
 
-            <!-- 选中文本弹出工具栏 (Ported from SelectionPopover.vue) -->
             <transition name="pop-fade">
                 <div v-if="selectionPopover.visible" class="selection-popover"
                     :style="{ top: selectionPopover.top + 'px', left: selectionPopover.left + 'px', transform: 'translateX(-50%)' }">
-                    <button v-if="selectionPopover.text.length <= 30" class="popover-btn word-btn" title="添加生词" @click="addToVocabulary">
+                    <button v-if="selectionPopover.text.length <= 30" class="popover-btn word-btn" title="Add word" @click="addToVocabulary">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M12 20h9"/>
                             <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
                         </svg>
                     </button>
-                    <button class="popover-btn sentence-btn" title="添加长难句" @click="addToSentenceBank">
+                    <button class="popover-btn sentence-btn" title="Add sentence" @click="addToSentenceBank">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
                             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
@@ -116,7 +136,6 @@
                 </div>
             </transition>
 
-            <!-- 标注对话框 (AnnotationForm) -->
             <AnnotationForm
                 v-if="annotationForm.visible"
                 :selected-text="annotationForm.selectedText"
@@ -132,18 +151,26 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
+import { withBase } from 'vuepress/client'
 import { useVocabulary } from '../bilingual-pack-client/composables/useVocabulary'
 import { useSentenceBank } from '../bilingual-pack-client/composables/useSentenceBank'
+import { createNotebookOpener } from '../bilingual-pack-client/utils/notebookNavigation'
+import { listenForNavigation, WINDOW_NAMES } from '../bilingual-pack-client/utils/channelMessaging'
 import AnnotationForm from '../bilingual-pack-client/components/AnnotationForm.vue'
 
 // Composables
-const { addWord } = useVocabulary()
-const { addSentence } = useSentenceBank()
+const { vocabulary, addWord, updateWord } = useVocabulary()
+const { sentences, addSentence, updateSentence } = useSentenceBank()
 const router = useRouter()
+const openNotebook = createNotebookOpener({
+    withBase: (path) => path,
+    getOrigin: () => window.location.origin,
+    openWindow: (url, name) => window.open(url, name)
+})
 
-// 状态
 const bookLoaded = ref(false)
 const isAutoLoading = ref(false)
+const isRestoringProgress = ref(false)
 const bookTitle = ref('')
 const progress = ref(0)
 const isDragging = ref(false)
@@ -151,17 +178,16 @@ const canGoPrev = ref(false)
 const canGoNext = ref(true)
 const toc = ref<any[]>([])
 const showToc = ref(false)
+const activeHref = ref('')
 const currentBookUrl = ref('') // Track the current ebook URL for annotations
 
-// DOM 引用
 const fileInput = ref<HTMLInputElement | null>(null)
 const viewerContainer = ref<HTMLElement | null>(null)
 
-// 阅读器实例
-let view: any = null
 let currentBook: any = null
+let view: any = null
+let currentIframeDoc: Document | null = null
 
-// 选中文本弹出框
 const selectionPopover = ref({
     visible: false,
     top: 0,
@@ -170,7 +196,6 @@ const selectionPopover = ref({
     range: null as Range | null
 })
 
-// 标注对话框状态
 const annotationForm = ref({
     visible: false,
     type: 'word' as 'word' | 'sentence',
@@ -179,36 +204,135 @@ const annotationForm = ref({
     cfi: '' // Store CFI position for navigation
 })
 
-// 触发文件选择
+type AnnotationType = 'vocab' | 'sentence'
+
+interface EbookAnnotation {
+    cfi?: string
+    type: AnnotationType
+    text: string
+    timestamp: number
+    wordId?: string
+    sentenceId?: string
+}
+
+const currentLocationCfi = ref('')
+
+
+function getCfiSectionPrefix(cfi: string): string {
+    // Extract section identifier from CFI (part before '!')
+    // e.g. 'epubcfi(/6/4!/4/2/1:0)' -> 'epubcfi(/6/4!'
+    const idx = cfi.indexOf('!')
+    return idx !== -1 ? cfi.substring(0, idx + 1) : cfi
+}
+
+function normalizeBookUrl(bookUrl: string): string {
+    if (!bookUrl) {
+        return ''
+    }
+
+    try {
+        return decodeURIComponent(bookUrl)
+    } catch {
+        return bookUrl
+    }
+}
+
+function buildProgressStorageKey(bookUrl: string): string {
+    return `ebook-progress-${normalizeBookUrl(bookUrl)}`
+}
+
+function buildAnnotationStorageKey(bookUrl: string): string {
+    return `ebook-annotations-${normalizeBookUrl(bookUrl)}`
+}
+
+function parseReaderPath(path?: string): URL | null {
+    if (!path) {
+        return null
+    }
+
+    try {
+        return new URL(path, 'https://bilingual.local')
+    } catch {
+        return null
+    }
+}
+
+function isSameBookPath(path?: string): boolean {
+    const current = normalizeBookUrl(currentBookUrl.value)
+    if (!current) {
+        return false
+    }
+
+    const parsedPath = parseReaderPath(path)
+    if (!parsedPath) {
+        return false
+    }
+
+    const targetBook = normalizeBookUrl(parsedPath.searchParams.get('book') || '')
+    return targetBook === current
+}
+
+function findWordIdByText(text: string): string | undefined {
+    const normalizedText = text.trim().toLowerCase()
+    if (!normalizedText) {
+        return undefined
+    }
+
+    const matchedInBook = vocabulary.value.find((item) => item.word === normalizedText && isSameBookPath(item.articlePath))
+    if (matchedInBook) {
+        return matchedInBook.id
+    }
+
+    return vocabulary.value.find((item) => item.word === normalizedText)?.id
+}
+
+function findSentenceIdByText(text: string): string | undefined {
+    const normalizedText = text.trim().toLowerCase()
+    if (!normalizedText) {
+        return undefined
+    }
+
+    const matchedInBook = sentences.value.find(
+        (item) => item.sentence.trim().toLowerCase() === normalizedText && isSameBookPath(item.articlePath)
+    )
+    if (matchedInBook) {
+        return matchedInBook.id
+    }
+
+    return sentences.value.find((item) => item.sentence.trim().toLowerCase() === normalizedText)?.id
+}
+
+function openNotebookWindow(type: 'word' | 'sentence', id: string) {
+    void openNotebook(type, id)
+}
+
 function triggerFileInput() {
     fileInput.value?.click()
 }
 
-// 处理文件选择
 async function handleFileSelect(event: Event) {
     const input = event.target as HTMLInputElement
     const file = input.files?.[0]
     if (file) {
-        await loadBook(file)
+        currentBookUrl.value = file.name
+        await loadBook(file, file.name)
     }
 }
 
-// 处理拖拽
 async function handleDrop(event: DragEvent) {
     isDragging.value = false
     const file = event.dataTransfer?.files[0]
     if (file) {
-        await loadBook(file)
+        currentBookUrl.value = file.name
+        await loadBook(file, file.name)
     }
 }
 
-// 动态加载 foliate-js 脚本
 let foliateModule: any = null
 
 async function loadFoliateJs(): Promise<any> {
     if (foliateModule) return foliateModule
     
-    // 检查是否已经加载过
     if ((window as any).__foliateModule) {
         foliateModule = (window as any).__foliateModule
         return foliateModule
@@ -224,10 +348,8 @@ async function loadFoliateJs(): Promise<any> {
         
         document.head.appendChild(script)
         
-        // 使用轮询等待模块加载
         let attempts = 0
-        const maxAttempts = 50 // 5秒超时
-        
+        const maxAttempts = 50
         const checkInterval = setInterval(() => {
             attempts++
             
@@ -243,7 +365,6 @@ async function loadFoliateJs(): Promise<any> {
     })
 }
 
-// 管理页面标题可见性
 function togglePageHeader(show: boolean) {
     const h1 = document.querySelector('.theme-hope-content > h1') || document.querySelector('h1')
     const pageInfo = document.querySelector('.page-info')
@@ -252,112 +373,505 @@ function togglePageHeader(show: boolean) {
     if (pageInfo) (pageInfo as HTMLElement).style.display = show ? '' : 'none'
 }
 
-// 加载书籍
-async function loadBook(file: File) {
+async function loadBook(file: File, bookUrl?: string) {
     try {
-        // 动态加载 foliate-js
         const { makeBook } = await loadFoliateJs()
 
-        // 先解析书籍获取元数据
         currentBook = await makeBook(file)
         
         bookTitle.value = currentBook.metadata?.title || file.name.replace(/\.[^/.]+$/, '')
         document.title = bookTitle.value
         
-        // 隐藏页面默认标题和元数据，进入沉浸式阅读
         togglePageHeader(false)
         
-        // 获取目录
         toc.value = currentBook.toc || []
 
-        // 设置 bookLoaded 为 true，这样 viewerContainer 会被渲染
         bookLoaded.value = true
 
-        // 等待 DOM 更新
         await nextTick()
 
         if (!viewerContainer.value) {
             return
         }
 
-        // 清空容器
         viewerContainer.value.innerHTML = ''
 
-        // 创建 foliate-view 元素
         view = document.createElement('foliate-view') as any
         viewerContainer.value.appendChild(view)
 
-        // 监听事件
         view.addEventListener('relocate', handleRelocate)
         view.addEventListener('load', handleSectionLoad)
 
-        // 打开书籍
         await view.open(currentBook)
+        
+        if (bookUrl) {
+            const savedProgress = getReadingProgress(bookUrl)
+            if (savedProgress && savedProgress.cfi) {
+                console.log('Restoring saved reading progress')
+                isRestoringProgress.value = true
+                setTimeout(() => {
+                    view?.goTo(savedProgress.cfi)
+                    setTimeout(() => {
+                        isRestoringProgress.value = false
+                    }, 800)
+                }, 500)
+            }
+        }
 
     } catch (error) {
-        console.error('加载书籍失败:', error)
+        console.error('Failed to load ebook file:', error)
         bookLoaded.value = false
-        togglePageHeader(true) // 恢复标题
-        alert('加载书籍失败，请确保文件格式正确。错误: ' + (error as Error).message)
+        togglePageHeader(true)
+        alert('Failed to load ebook. Please ensure the file format is valid. Error: ' + (error as Error).message)
     }
 }
-// 点击目录项
 function handleTocClick(href: string) {
     if (view && href) {
+        activeHref.value = href
         view.goTo(href)
-        // 移动端或小屏幕点击后关闭目录
-        if (window.innerWidth < 768) {
+        if (window.innerWidth < 1024) {
             showToc.value = false
         }
     }
 }
 
-// 切换目录显示
 function toggleToc() {
     showToc.value = !showToc.value
 }
 
-// 处理位置变化
 function handleRelocate(event: CustomEvent) {
-    const { fraction, section } = event.detail
+    const { fraction, section, cfi, location } = event.detail
     progress.value = fraction || 0
 
-    // 更新翻页按钮状态
     if (currentBook) {
         const totalSections = currentBook.sections?.length || 1
         canGoPrev.value = section > 0 || fraction > 0
         canGoNext.value = section < totalSections - 1 || fraction < 1
     }
-}
-
-// 处理章节加载 - 添加选中事件监听和注入样式
-function handleSectionLoad(event: CustomEvent) {
-    const { doc } = event.detail
-    if (doc) {
-        doc.addEventListener('mouseup', handleTextSelection)
-        doc.addEventListener('touchend', handleTextSelection)
-        
-        // 注入高亮样式
-        const style = doc.createElement('style')
-        style.textContent = `
-            .highlight-vocab { 
-                background-color: rgba(76, 175, 80, 0.3) !important; 
-                border-bottom: 2px solid #4CAF50 !important;
-                color: inherit !important;
-                cursor: pointer;
-            }
-            .highlight-sentence { 
-                background-color: rgba(33, 150, 243, 0.3) !important; 
-                border-bottom: 2px solid #2196F3 !important;
-                color: inherit !important;
-                cursor: pointer;
-            }
-        `
-        doc.head.appendChild(style)
+    
+    const currentCfi = cfi || location?.cfi
+    if (currentCfi && currentBookUrl.value) {
+        currentLocationCfi.value = currentCfi
+        saveReadingProgress(currentBookUrl.value, currentCfi, fraction)
     }
 }
 
-// 处理文本选中
+function saveReadingProgress(bookUrl: string, cfi: string, progress: number) {
+    try {
+        const key = buildProgressStorageKey(bookUrl)
+        const data = {
+            cfi,
+            progress,
+            timestamp: Date.now()
+        }
+        localStorage.setItem(key, JSON.stringify(data))
+    } catch (error) {
+        console.error('Failed to save reading progress to localStorage:', error)
+    }
+}
+
+function getReadingProgress(bookUrl: string): { cfi: string; progress: number } | null {
+    try {
+        const normalizedKey = buildProgressStorageKey(bookUrl)
+        const legacyKey = `ebook-progress-${bookUrl}`
+        const data = localStorage.getItem(normalizedKey) || localStorage.getItem(legacyKey)
+        if (data) {
+            const parsed = JSON.parse(data)
+            if (normalizedKey !== legacyKey) {
+                localStorage.setItem(normalizedKey, data)
+            }
+            return parsed
+        }
+    } catch (error) {
+        console.error('Failed to retrieve reading progress from localStorage:', error)
+    }
+    return null
+}
+
+function saveAnnotation(
+    bookUrl: string,
+    type: AnnotationType,
+    text: string,
+    options: { cfi?: string; wordId?: string; sentenceId?: string } = {}
+) {
+    try {
+        const key = buildAnnotationStorageKey(bookUrl)
+        const legacyKey = `ebook-annotations-${bookUrl}`
+        const existingData = localStorage.getItem(key) || localStorage.getItem(legacyKey)
+        const annotations: EbookAnnotation[] = existingData ? JSON.parse(existingData) : []
+        const normalizedText = text.trim().toLowerCase()
+        
+        const exists = annotations.some((item) => {
+            if (item.type !== type) return false
+            if (item.text.trim().toLowerCase() !== normalizedText) return false
+            if (options.wordId) return item.wordId === options.wordId
+            if (options.sentenceId) return item.sentenceId === options.sentenceId
+            return (item.cfi || '') === (options.cfi || '')
+        })
+        if (!exists) {
+            annotations.push({
+                cfi: options.cfi,
+                type,
+                text: text.trim(),
+                timestamp: Date.now(),
+                wordId: options.wordId,
+                sentenceId: options.sentenceId
+            })
+            localStorage.setItem(key, JSON.stringify(annotations))
+            console.log('Annotation saved to localStorage:', { key, annotation: { type, text, ...options } })
+        } else {
+            console.log('Annotation already exists, skip saving')
+        }
+    } catch (error) {
+        console.error('Failed to save annotation:', error)
+    }
+}
+
+function getAnnotations(bookUrl: string): EbookAnnotation[] {
+    try {
+        const normalizedKey = buildAnnotationStorageKey(bookUrl)
+        const legacyKey = `ebook-annotations-${bookUrl}`
+        const data = localStorage.getItem(normalizedKey) || localStorage.getItem(legacyKey)
+        console.log('Loaded annotations from localStorage:', { key: normalizedKey, data })
+        if (data) {
+            if (normalizedKey !== legacyKey) {
+                localStorage.setItem(normalizedKey, data)
+            }
+
+            const parsed: unknown = JSON.parse(data)
+            if (!Array.isArray(parsed)) {
+                return []
+            }
+
+            return parsed
+                .filter((item: any) => item && (item.type === 'vocab' || item.type === 'sentence') && typeof item.text === 'string')
+                .map((item: any) => ({
+                    cfi: typeof item.cfi === 'string' ? item.cfi : undefined,
+                    type: item.type as AnnotationType,
+                    text: item.text,
+                    timestamp: typeof item.timestamp === 'number' ? item.timestamp : Date.now(),
+                    wordId: typeof item.wordId === 'string' ? item.wordId : undefined,
+                    sentenceId: typeof item.sentenceId === 'string' ? item.sentenceId : undefined
+                }))
+        }
+    } catch (error) {
+        console.error('Failed to get annotations:', error)
+    }
+    return []
+}
+
+function applyAnnotations(doc: Document) {
+    if (!currentBookUrl.value) {
+        console.log('currentBookUrl is not set, skip restoring annotations')
+        return
+    }
+
+    const annotations = getAnnotations(currentBookUrl.value)
+    console.log('Loaded annotations:', annotations)
+
+    if (annotations.length === 0) {
+        console.log('No saved annotations')
+        return
+    }
+
+    // Filter annotations to only show in the section where they were originally annotated
+    const currentCfiPrefix = currentLocationCfi.value ? getCfiSectionPrefix(currentLocationCfi.value) : ''
+    const sectionAnnotations = currentCfiPrefix
+        ? annotations.filter(a => a.cfi && getCfiSectionPrefix(a.cfi) === currentCfiPrefix)
+        : annotations // No current CFI yet, skip filtering (legacy fallback)
+
+    // Filter out stale annotations: skip if word/sentence no longer exists in vocabulary/sentence bank
+    const validAnnotations = sectionAnnotations.filter(annotation => {
+        if (annotation.type === 'vocab') {
+            // Verify wordId still exists in vocabulary (may have been deleted)
+            const existsById = annotation.wordId && vocabulary.value.some(w => w.id === annotation.wordId)
+            const wordId = existsById ? annotation.wordId : findWordIdByText(annotation.text)
+            if (!wordId) {
+                console.log(`Skipping stale vocab annotation: "${annotation.text}" (not in vocabulary)`)
+                return false
+            }
+            annotation.wordId = wordId
+        }
+        if (annotation.type === 'sentence') {
+            // Verify sentenceId still exists in sentence bank (may have been deleted)
+            const existsById = annotation.sentenceId && sentences.value.some(s => s.id === annotation.sentenceId)
+            const sentenceId = existsById ? annotation.sentenceId : findSentenceIdByText(annotation.text)
+            if (!sentenceId) {
+                console.log(`Skipping stale sentence annotation: "${annotation.text}" (not in sentence bank)`)
+                return false
+            }
+            annotation.sentenceId = sentenceId
+        }
+        return true
+    })
+
+    // Clean up orphaned annotations from localStorage
+    if (validAnnotations.length < annotations.length && currentBookUrl.value) {
+        const key = buildAnnotationStorageKey(currentBookUrl.value)
+        const cleanedAnnotations = annotations.filter(a => {
+            if (a.type === 'vocab') {
+                const existsById = a.wordId && vocabulary.value.some(w => w.id === a.wordId)
+                return existsById || !!findWordIdByText(a.text)
+            }
+            if (a.type === 'sentence') {
+                const existsById = a.sentenceId && sentences.value.some(s => s.id === a.sentenceId)
+                return existsById || !!findSentenceIdByText(a.text)
+            }
+            return true
+        })
+        localStorage.setItem(key, JSON.stringify(cleanedAnnotations))
+        console.log(`Cleaned localStorage: removed ${annotations.length - cleanedAnnotations.length} orphaned annotations`)
+    }
+
+    console.log('Applying valid annotations for current section:', validAnnotations.length, 'of', sectionAnnotations.length)
+
+    validAnnotations.forEach((annotation, idx) => {
+        try {
+            console.log(`Applying annotation ${idx + 1}:`, annotation)
+            highlightTextInDocument(doc, annotation)
+        } catch (error) {
+            console.error('Failed to apply annotation:', error)
+        }
+    })
+}
+function highlightTextInDocument(doc: Document, annotation: EbookAnnotation) {
+    try {
+        const searchText = annotation.text
+        const type = annotation.type
+        if (!searchText) {
+            return
+        }
+
+        const walker = doc.createTreeWalker(
+            doc.body,
+            NodeFilter.SHOW_TEXT,
+            {
+                acceptNode: (node) => {
+                    if (node.parentElement?.tagName === 'MARK') {
+                        return NodeFilter.FILTER_REJECT
+                    }
+                    const parent = node.parentElement
+                    if (parent && (parent.tagName === 'SCRIPT' || parent.tagName === 'STYLE')) {
+                        return NodeFilter.FILTER_REJECT
+                    }
+                    return NodeFilter.FILTER_ACCEPT
+                }
+            }
+        )
+
+        let node: Node | null
+        let matchedCount = 0
+
+        while ((node = walker.nextNode())) {
+            const text = node.textContent || ''
+            const index = text.toLowerCase().indexOf(searchText.toLowerCase())
+            if (index === -1) {
+                continue
+            }
+
+            try {
+                const range = doc.createRange()
+                range.setStart(node, index)
+                range.setEnd(node, index + searchText.length)
+
+                const mark = doc.createElement('mark')
+                mark.className = type === 'vocab' ? 'highlight-vocab' : 'highlight-sentence'
+                mark.textContent = text.substring(index, index + searchText.length)
+                if (annotation.wordId) {
+                    mark.dataset.wordId = annotation.wordId
+                }
+                if (annotation.sentenceId) {
+                    mark.dataset.sentenceId = annotation.sentenceId
+                }
+                if (annotation.cfi) {
+                    mark.dataset.cfi = annotation.cfi
+                }
+
+                range.deleteContents()
+                range.insertNode(mark)
+                matchedCount = 1
+                break
+            } catch (e) {
+                console.warn('Failed to highlight text range in document:', e)
+            }
+        }
+
+        if (matchedCount > 0) {
+            console.log(`Successfully highlighted ${matchedCount} occurrence(s) of "${searchText}"`)
+        }
+    } catch (error) {
+        console.error('Failed to apply annotation highlighting:', error)
+    }
+}
+
+// Add blink animation to a highlighted mark element
+function blinkHighlight(doc: Document, highlightId: string, type: 'word' | 'sentence') {
+    try {
+        const selector = type === 'word' ? `[data-word-id="${highlightId}"]` : `[data-sentence-id="${highlightId}"]`
+        const element = doc.querySelector(selector) as HTMLElement
+        
+        if (element) {
+            // Scroll into view
+            element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            
+            // Add flashing animation
+            element.classList.add('flashing')
+            
+            // Remove animation class after animation completes (3.2 seconds = 3 flashes * 1s + buffer)
+            setTimeout(() => {
+                element.classList.remove('flashing')
+            }, 3200)
+            
+            console.log(`Blinking highlight for ${type}:`, highlightId)
+        } else {
+            console.warn(`Element not found for ${type}:`, highlightId)
+        }
+    } catch (error) {
+        console.error('Failed to add blink animation:', error)
+    }
+}
+
+function handleAnnotationMarkClick(event: Event) {
+    const target = event.target as HTMLElement | null
+    console.log('Click event triggered on:', target)
+    
+    if (!target) {
+        console.log('No target element')
+        return
+    }
+
+    const mark = target.closest('mark.highlight-vocab, mark.highlight-sentence') as HTMLElement | null
+    console.log('Found mark element:', mark)
+    
+    if (!mark) {
+        console.log('Not a mark element')
+        return
+    }
+
+    event.preventDefault()
+    event.stopPropagation()
+
+    if (mark.classList.contains('highlight-vocab')) {
+        const wordId = mark.dataset.wordId
+        console.log('Word mark clicked, wordId:', wordId)
+        if (wordId) {
+            console.log('Opening vocabulary notebook for word:', wordId)
+            openNotebookWindow('word', wordId)
+        } else {
+            console.warn('Word mark has no wordId attribute')
+        }
+        return
+    }
+
+    if (mark.classList.contains('highlight-sentence')) {
+        const sentenceId = mark.dataset.sentenceId
+        console.log('Sentence mark clicked, sentenceId:', sentenceId)
+        if (sentenceId) {
+            console.log('Opening sentence notebook for sentence:', sentenceId)
+            openNotebookWindow('sentence', sentenceId)
+        } else {
+            console.warn('Sentence mark has no sentenceId attribute')
+        }
+    }
+}
+
+function handleSectionLoad(event: CustomEvent) {
+    const { doc } = event.detail
+    console.log('Section loaded, doc:', doc)
+    
+    if (doc) {
+        currentIframeDoc = doc
+        console.log('Adding event listeners to document')
+        doc.addEventListener('mouseup', handleTextSelection)
+        doc.addEventListener('touchend', handleTextSelection)
+        doc.addEventListener('click', handleAnnotationMarkClick, true) // Use capture phase
+        
+        const style = doc.createElement('style')
+        style.textContent = `
+            .highlight-vocab { 
+                background-color: transparent !important; 
+                border-bottom: 2px solid #3eaf7c !important;
+                color: inherit !important;
+                cursor: pointer;
+                padding: 0;
+                display: inline;
+                line-height: inherit;
+                box-decoration-break: clone;
+                -webkit-box-decoration-break: clone;
+                transition: background-color 0.3s ease, border-bottom-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            }
+            .highlight-sentence { 
+                background-color: rgba(74, 144, 226, 0.15) !important; 
+                border-bottom: none;
+                color: inherit !important;
+                cursor: pointer;
+                padding: 0;
+                display: inline;
+                line-height: inherit;
+                box-decoration-break: clone;
+                -webkit-box-decoration-break: clone;
+                transition: background-color 0.3s ease, border-bottom-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+            }
+            .highlight-vocab.flashing {
+                animation: flash-word 1s ease-in-out 3;
+            }
+            @keyframes flash-word {
+                0%, 100% {
+                    background-color: transparent;
+                    box-shadow: 0 0 0 0 transparent;
+                }
+                50% {
+                    background-color: rgba(62, 175, 124, 0.4);
+                    box-shadow: 0 0 20px 8px rgba(100, 200, 150, 0.5), 0 0 40px 16px rgba(62, 175, 124, 0.25);
+                }
+            }
+            .highlight-sentence.flashing {
+                animation: flash-sentence 1s ease-in-out 3;
+                background-color: transparent !important;
+                background-image: none !important;
+                box-shadow: 0 0 0 0 transparent;
+            }
+            @keyframes flash-sentence {
+                0%, 100% {
+                    background-color: transparent;
+                    box-shadow: 0 0 0 0 transparent;
+                }
+                50% {
+                    background-color: rgba(74, 144, 226, 0.32);
+                    box-shadow: 0 0 12px 6px rgba(100, 160, 240, 0.4), 0 0 24px 12px rgba(74, 144, 226, 0.18), inset 0 0 10px 2px rgba(74, 144, 226, 0.45);
+                }
+            }
+        `
+        doc.head.appendChild(style)
+        
+        setTimeout(() => {
+            console.log('Applying annotations...')
+            applyAnnotations(doc)
+            
+            // Check if we need to blink a specific word (from URL parameter)
+            if (typeof window !== 'undefined') {
+                const params = new URLSearchParams(window.location.search)
+                const highlightId = params.get('highlight')
+                const type = params.get('type') as 'word' | 'sentence' | null
+                
+                if (highlightId && type) {
+                    console.log('Found highlight parameters:', { highlightId, type })
+                    // Clear URL parameters
+                    const url = new URL(window.location.href)
+                    url.searchParams.delete('highlight')
+                    url.searchParams.delete('type')
+                    window.history.replaceState({}, '', url.toString())
+                    
+                    setTimeout(() => {
+                        console.log('Triggering blink for:', highlightId, type)
+                        blinkHighlight(doc, highlightId, type)
+                    }, 500)
+                }
+            }
+        }, 100)
+    }
+}
+
 function handleTextSelection(event: Event) {
     const doc = (event.target as Node).ownerDocument || document
     const selection = doc.getSelection()
@@ -376,11 +890,9 @@ function handleTextSelection(event: Event) {
     const range = selection.getRangeAt(0)
     const rect = range.getBoundingClientRect()
 
-    // 获取 iframe 的位置偏移 - 使用 frameElement 从 iframe 内部文档获取
     let offsetTop = 0
     let offsetLeft = 0
     
-    // 如果当前文档在 iframe 中，获取 iframe 在主窗口中的位置
     const win = doc.defaultView
     if (win && win.frameElement) {
         const iframeRect = (win.frameElement as HTMLIFrameElement).getBoundingClientRect()
@@ -388,7 +900,6 @@ function handleTextSelection(event: Event) {
         offsetLeft = iframeRect.left
     }
 
-    // 计算弹出框位置 - 居中显示在选中文本上方
     const popoverTop = rect.top + offsetTop - 55 // 55px above selection
     const popoverLeft = rect.left + offsetLeft + rect.width / 2 // Centered (translateX(-50%) in CSS)
 
@@ -401,51 +912,62 @@ function handleTextSelection(event: Event) {
     }
 }
 
-// 高亮选中内容
-function highlightSelection(type: 'vocab' | 'sentence') {
+function highlightSelection(type: 'vocab' | 'sentence'): HTMLElement | null {
     const range = selectionPopover.value.range
-    if (!range) return
+    if (!range) return null
 
     try {
         const doc = range.commonAncestorContainer.ownerDocument
-        if (!doc) return
-
+        if (!doc) return null
         const mark = doc.createElement('mark')
         mark.className = type === 'vocab' ? 'highlight-vocab' : 'highlight-sentence'
-        
-        // 简单的 surroundContents 可能在跨节点时失败，这里做一个简单的容错
-        // 实际生产环境可能需要更复杂的 DOM 操作库
         try {
             range.surroundContents(mark)
         } catch (e) {
             console.warn('Cannot surround range directly, trying fallback', e)
-            // 如果选中了复杂结构，回退到 execCommand
             if (doc.designMode !== 'on') {
-                doc.designMode = 'on' // 确保 execCommand 可用
+                doc.designMode = 'on'
             }
             doc.execCommand('styleWithCSS', false, 'true')
             doc.execCommand('backColor', false, type === 'vocab' ? 'rgba(76, 175, 80, 0.3)' : 'rgba(33, 150, 243, 0.3)')
             doc.designMode = 'off'
+            const sel = doc.getSelection()
+            sel?.removeAllRanges()
+            return null
         }
-        
-        // 清除选中
         const sel = doc.getSelection()
         sel?.removeAllRanges()
+        return mark
     } catch (e) {
         console.error('Highlight error:', e)
+        return null
     }
 }
-
-// 打开标注对话框 - 生词
 function addToVocabulary() {
     const text = selectionPopover.value.text
     if (text) {
         // Get CFI from current view position for navigation
-        const cfi = view?.lastLocation?.cfi || ''
+        let cfi = ''
+        try {
+            if (view?.renderer?.getCFI) {
+                cfi = view.renderer.getCFI()
+            } else if (view?.getCFI) {
+                cfi = view.getCFI()
+            } else if (view?.location?.cfi) {
+                cfi = view.location.cfi
+            }
+        } catch (e) {
+            console.warn('Failed to get CFI position from view:', e)
+        }
+        
+        if (!cfi) {
+            cfi = currentLocationCfi.value
+        }
+        console.log('Adding word to vocabulary')
         annotationForm.value = {
             visible: true,
             type: 'word',
-            selectedText: text.split(/\s+/)[0] || text, // 取第一个单词
+            selectedText: text,
             contextText: text,
             cfi
         }
@@ -453,12 +975,27 @@ function addToVocabulary() {
     selectionPopover.value.visible = false
 }
 
-// 打开标注对话框 - 长难句
 function addToSentenceBank() {
     const text = selectionPopover.value.text
     if (text) {
         // Get CFI from current view position for navigation
-        const cfi = view?.lastLocation?.cfi || ''
+        let cfi = ''
+        try {
+            if (view?.renderer?.getCFI) {
+                cfi = view.renderer.getCFI()
+            } else if (view?.getCFI) {
+                cfi = view.getCFI()
+            } else if (view?.location?.cfi) {
+                cfi = view.location.cfi
+            }
+        } catch (e) {
+            console.warn('Failed to get CFI position from view:', e)
+        }
+        
+        if (!cfi) {
+            cfi = currentLocationCfi.value
+        }
+        console.log('Adding sentence to sentence bank')
         annotationForm.value = {
             visible: true,
             type: 'sentence',
@@ -470,49 +1007,68 @@ function addToSentenceBank() {
     selectionPopover.value.visible = false
 }
 
-// 处理标注保存
 function handleAnnotationSave(meaning: string) {
     const { type, selectedText, contextText, cfi } = annotationForm.value
-    
+    console.log('Saving annotation payload')
     // Build articlePath with book URL and CFI for ebook navigation
-    // Format: /reader.html?book=<encoded_book_url>&cfi=<encoded_cfi>
+    // Format: /reader.html?book=<encoded_book_url>&cfi=<encoded_cfi>&highlight=<id>&type=<word|sentence>
     let articlePath = '/reader'
-    if (currentBookUrl.value) {
-        const params = new URLSearchParams()
-        params.set('book', currentBookUrl.value)
-        if (cfi) {
-            params.set('cfi', cfi)
-        }
-        articlePath = `/reader.html?${params.toString()}`
-    }
-    
     if (type === 'word') {
-        addWord(selectedText, meaning, contextText, articlePath)
-        highlightSelection('vocab')
+        // First save with temporary path to get the ID
+        const savedWord = addWord(selectedText, meaning, contextText, articlePath)
+        const wordId = savedWord.id
+        const vocabMark = highlightSelection('vocab')
+        if (vocabMark) { vocabMark.dataset.wordId = wordId }
+        // Build full articlePath with book URL and highlight params, then update
+        if (currentBookUrl.value) {
+            const params = new URLSearchParams()
+            params.set('book', currentBookUrl.value)
+            if (cfi) {
+                params.set('cfi', cfi)
+            }
+            params.set('highlight', wordId)
+            params.set('type', 'word')
+            articlePath = `/reader.html?${params.toString()}`
+            updateWord(wordId, { articlePath })
+            saveAnnotation(currentBookUrl.value, 'vocab', selectedText, { cfi, wordId })
+        }
     } else {
-        addSentence(selectedText, meaning, articlePath)
-        highlightSelection('sentence')
+        // First save with temporary path to get the ID
+        const savedSentence = addSentence(selectedText, meaning, articlePath)
+        const sentenceId = savedSentence.id
+        const sentenceMark = highlightSelection('sentence')
+        if (sentenceMark) { sentenceMark.dataset.sentenceId = sentenceId }
+        // Build full articlePath with book URL and highlight params, then update
+        if (currentBookUrl.value) {
+            const params = new URLSearchParams()
+            params.set('book', currentBookUrl.value)
+            if (cfi) {
+                params.set('cfi', cfi)
+            }
+            params.set('highlight', sentenceId)
+            params.set('type', 'sentence')
+            articlePath = `/reader.html?${params.toString()}`
+            
+            // Update the sentence's articlePath with the full ebook navigation URL
+            updateSentence(sentenceId, { articlePath })
+            saveAnnotation(currentBookUrl.value, 'sentence', selectedText, { cfi, sentenceId })
+        }
     }
-    
     annotationForm.value.visible = false
 }
 
-// 处理标注取消
 function handleAnnotationCancel() {
     annotationForm.value.visible = false
 }
 
-// 上一页
 function goPrev() {
     view?.prev()
 }
 
-// 下一页
 function goNext() {
     view?.next()
 }
 
-// 关闭书籍
 function closeBook() {
     if (view) {
         view.close?.()
@@ -525,10 +1081,10 @@ function closeBook() {
     progress.value = 0
     toc.value = []
     showToc.value = false
+    activeHref.value = ''
     
-    // 恢复页面标题和元数据
     togglePageHeader(true)
-    document.title = '电子书阅读器'
+    document.title = 'Ebook Reader'
 }
 
 async function handleCloseAction() {
@@ -547,7 +1103,6 @@ async function handleCloseAction() {
 
 
 
-// 点击其他地方隐藏弹出框
 function handleClickOutside(event: MouseEvent) {
     if (selectionPopover.value.visible) {
         const target = event.target as HTMLElement
@@ -557,59 +1112,123 @@ function handleClickOutside(event: MouseEvent) {
     }
 }
 
-// 从 URL 加载电子书
 async function loadBookFromUrl(url: string, navigateToCfi?: string) {
     try {
-        // 优先使用 Cache API 中预加载的数据（从 ArticleManager 传过来）
         let blob: Blob
-        let fileName = url.split('/').pop() || 'ebook'
+        const normalizedUrl = normalizeBookUrl(url)
+        let fileName = normalizedUrl.split('/').pop() || 'ebook'
 
         try {
             const cache = await caches.open('ebook-preload')
-            const cached = await cache.match(url)
+            const cached = await cache.match(normalizedUrl)
             if (cached) {
                 blob = await cached.blob()
-                // 用完即删
-                await cache.delete(url)
+                await cache.delete(normalizedUrl)
             } else {
                 throw new Error('no cache')
             }
         } catch {
-            // 回退到普通 fetch
-            const response = await fetch(url)
+            const response = await fetch(normalizedUrl)
             if (!response.ok) throw new Error('Failed to fetch ebook')
             blob = await response.blob()
         }
 
-        currentBookUrl.value = url
+        currentBookUrl.value = normalizedUrl
         const file = new File([blob], fileName, { type: blob.type })
         
-        await loadBook(file)
+        await loadBook(file, normalizedUrl)
         
-        // Navigate to CFI position if provided
         if (navigateToCfi && view) {
+            console.log('Navigating to requested CFI')
+            isRestoringProgress.value = true
             setTimeout(() => {
                 view?.goTo(navigateToCfi)
+                setTimeout(() => {
+                    isRestoringProgress.value = false
+                }, 800)
             }, 500)
         }
     } catch (error) {
-        console.error('从 URL 加载电子书失败:', error)
-        alert('加载电子书失败，请检查文件路径')
+        console.error('Failed to load ebook from URL')
+        alert('Failed to load ebook from URL. Please check the file path.')
     }
 }
+
+function handleChannelNavigate(path: string, highlightId?: string, highlightType?: 'word' | 'sentence') {
+    if (typeof window === 'undefined') {
+        return
+    }
+
+    const targetUrl = new URL(path, window.location.origin)
+    const targetPath = targetUrl.pathname.replace(/\.html$/, '')
+
+    if (targetPath !== '/reader') {
+        if (highlightId) targetUrl.searchParams.set('highlight', highlightId)
+        if (highlightType) targetUrl.searchParams.set('type', highlightType)
+        void router.push(targetUrl.pathname + targetUrl.search)
+        return
+    }
+
+    const targetBook = targetUrl.searchParams.get('book')
+    const targetCfi = targetUrl.searchParams.get('cfi') || undefined
+
+    if (!targetBook) {
+        if (highlightId) targetUrl.searchParams.set('highlight', highlightId)
+        if (highlightType) targetUrl.searchParams.set('type', highlightType)
+        void router.push(targetUrl.pathname + targetUrl.search)
+        return
+    }
+
+    const normalizedTargetBook = normalizeBookUrl(targetBook)
+    const normalizedCurrentBook = normalizeBookUrl(currentBookUrl.value)
+    const sameBook = !!normalizedCurrentBook && normalizedCurrentBook === normalizedTargetBook && bookLoaded.value
+
+    if (sameBook) {
+        if (targetCfi && view) {
+            isRestoringProgress.value = true
+            setTimeout(() => {
+                view?.goTo(targetCfi)
+                setTimeout(() => {
+                    isRestoringProgress.value = false
+                    if (highlightId && highlightType) {
+                        if (currentIframeDoc) blinkHighlight(currentIframeDoc, highlightId, highlightType)
+                    }
+                }, 800)
+            }, 150)
+        } else if (highlightId && highlightType) {
+            // Already on the same page and no CFI, just blink it
+            if (currentIframeDoc) blinkHighlight(currentIframeDoc, highlightId, highlightType)
+        }
+        return
+    }
+
+    isAutoLoading.value = true
+    
+    // When loading a new book from URL, append highlight params so they are caught by handleSectionLoad
+    if (highlightId) targetUrl.searchParams.set('highlight', highlightId)
+    if (highlightType) targetUrl.searchParams.set('type', highlightType)
+    window.history.replaceState({}, '', targetUrl.toString())
+    
+    void loadBookFromUrl(normalizedTargetBook, targetCfi).finally(() => {
+        isAutoLoading.value = false
+    })
+}
+
+let cleanupNavigationListener: (() => void) | null = null
 
 onMounted(() => {
     document.addEventListener('click', handleClickOutside)
     
-    // 检查 URL 参数中是否有电子书路径
     if (typeof window !== 'undefined') {
+        window.name = WINDOW_NAMES.ARTICLE
+        cleanupNavigationListener = listenForNavigation('article', handleChannelNavigate)
         const params = new URLSearchParams(window.location.search)
         const bookUrl = params.get('book')
         const cfi = params.get('cfi')
         
         if (bookUrl) {
             isAutoLoading.value = true
-            loadBookFromUrl(decodeURIComponent(bookUrl), cfi ? decodeURIComponent(cfi) : undefined)
+            loadBookFromUrl(bookUrl, cfi || undefined)
                 .finally(() => {
                     isAutoLoading.value = false
                 })
@@ -619,6 +1238,7 @@ onMounted(() => {
 
 onUnmounted(() => {
     document.removeEventListener('click', handleClickOutside)
+    cleanupNavigationListener?.()
     closeBook()
 })
 </script>
@@ -1087,8 +1707,26 @@ onUnmounted(() => {
         transform: translateY(-50%) scale(0.95);
     }
     
-    &.prev { left: 2rem; }
-    &.next { right: 2rem; }
+    &:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+    
+    &.prev { 
+        left: calc((100% - 800px) / 2 - 60px);
+        
+        @media (max-width: 900px) {
+            left: 1rem;
+        }
+    }
+    
+    &.next { 
+        right: calc((100% - 800px) / 2 - 60px);
+        
+        @media (max-width: 900px) {
+            right: 1rem;
+        }
+    }
     
     @media (prefers-color-scheme: dark) {
         background: rgba(40, 40, 50, 0.6);
@@ -1102,6 +1740,58 @@ onUnmounted(() => {
     }
 }
 
+/* TOC Toggle Button - Left Edge */
+.toc-toggle-btn {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 64px;
+    border-radius: 0 12px 12px 0;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border: none;
+    border-left: none;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 2px 0 16px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s ease;
+    z-index: 999;
+    gap: 4px;
+}
+
+.toc-toggle-btn:hover {
+    width: 56px;
+    box-shadow: 2px 0 20px rgba(102, 126, 234, 0.5);
+}
+
+.toc-toggle-btn.active {
+    background: linear-gradient(135deg, #764ba2, #667eea);
+    left: 320px;
+}
+
+.toc-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(239, 68, 68, 0.4);
+}
+
 /* Sidebar */
 .toc-sidebar {
     position: fixed;
@@ -1109,9 +1799,9 @@ onUnmounted(() => {
     left: 0;
     width: 320px;
     height: 100vh;
-    background: #fff;
-    z-index: 100;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+    background: #ffffff;
+    box-shadow: 2px 0 40px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
     display: flex;
     flex-direction: column;
     
@@ -1122,34 +1812,84 @@ onUnmounted(() => {
 
 .toc-header {
     padding: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(180deg, #f8fafc, #ffffff);
     
-    h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 700;
+    @media (prefers-color-scheme: dark) {
+        background: linear-gradient(180deg, #2a2d3a, #1e1e2d);
     }
 }
 
-.close-toc-btn {
-    background: transparent;
-    border: none;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: #999;
-    transition: color 0.2s;
+.toc-title-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.toc-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
     
-    &:hover { color: #333; }
-    @media (prefers-color-scheme: dark) { &:hover { color: #fff; } }
+    @media (prefers-color-scheme: dark) {
+        color: #fff;
+    }
+}
+
+.toc-count {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    
+    @media (prefers-color-scheme: dark) {
+        background: rgba(255, 255, 255, 0.1);
+        color: #94a3b8;
+    }
+}
+
+.close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: transparent;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.close-btn:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+    border-color: #cbd5e1;
+    
+    @media (prefers-color-scheme: dark) {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
 }
 
 .toc-content {
     flex: 1;
     overflow-y: auto;
     padding: 1rem 0;
+}
+
+.toc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 .toc-item {
@@ -1163,31 +1903,127 @@ onUnmounted(() => {
         color: #4a5568;
         text-decoration: none;
         font-size: 0.95rem;
+        line-height: 1.5;
+        transition: all 0.2s ease;
         border-left: 3px solid transparent;
-        transition: all 0.2s;
+        position: relative;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        
+        &::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #667eea, #764ba2);
+            transform: scaleY(0);
+            transition: transform 0.2s ease;
+        }
         
         &:hover {
             background: rgba(102, 126, 234, 0.05);
             color: #667eea;
-            border-left-color: #667eea;
+        }
+        
+        &:hover::before {
+            transform: scaleY(1);
+        }
+    }
+
+    &.active > a {
+        background: rgba(102, 126, 234, 0.08);
+        color: #667eea;
+        border-left-color: transparent;
+        font-weight: 600;
+
+        &::before {
+            transform: scaleY(1);
+        }
+    }
+
+    @media (prefers-color-scheme: dark) {
+        a {
+            color: #cbd5e1;
+            
+            &:hover {
+                background: rgba(102, 126, 234, 0.15);
+                color: #a78bfa;
+            }
+        }
+        
+        &.active > a {
+            background: rgba(102, 126, 234, 0.2);
+            color: #a78bfa;
+            
+            &::before {
+                background: linear-gradient(180deg, #a78bfa, #818cf8);
+            }
         }
     }
 }
 
 .toc-subitems {
     padding-left: 0;
-    .toc-subitem a {
-        padding-left: 40px;
-        font-size: 0.9rem;
-        color: #718096;
+    list-style: none;
+    margin: 0;
+    
+    .toc-subitem {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        
+        a {
+            padding-left: 40px;
+            font-size: 0.9rem;
+            color: #64748b;
+            
+            @media (prefers-color-scheme: dark) {
+                color: #94a3b8;
+            }
+        }
     }
 }
 
 .empty-toc {
-    padding: 3rem;
+    padding: 3rem 1.5rem;
     text-align: center;
-    color: #a0aec0;
-    font-style: italic;
+    color: #94a3b8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    
+    svg {
+        color: #cbd5e1;
+        margin-bottom: 0.5rem;
+        
+        @media (prefers-color-scheme: dark) {
+            color: #475569;
+        }
+    }
+    
+    p {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #64748b;
+        
+        @media (prefers-color-scheme: dark) {
+            color: #94a3b8;
+        }
+    }
+    
+    span {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        
+        @media (prefers-color-scheme: dark) {
+            color: #64748b;
+        }
+    }
 }
 
 .toc-overlay {
@@ -1195,8 +2031,7 @@ onUnmounted(() => {
     inset: 0;
     background: rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(4px);
-    z-index: 90;
-    animation: fadeIn 0.3s ease;
+    z-index: 999;
 }
 
 /* Transitions */
@@ -1205,6 +2040,13 @@ onUnmounted(() => {
 }
 .slide-enter-from, .slide-leave-to {
     transform: translateX(-100%);
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
 }
 
 .pop-fade-enter-active, .pop-fade-leave-active {
@@ -1316,16 +2158,75 @@ onUnmounted(() => {
 
 /* Custom Scrollbar */
 .custom-scrollbar {
-    &::-webkit-scrollbar { width: 4px; }
+    &::-webkit-scrollbar { width: 6px; }
     &::-webkit-scrollbar-track { background: transparent; }
     &::-webkit-scrollbar-thumb {
-        background: rgba(0, 0, 0, 0.1);
-        border-radius: 10px;
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .toc-toggle-btn {
+        width: 40px;
+        height: 56px;
+    }
+
+    .toc-toggle-btn.active {
+        left: 280px;
+    }
+
+    .toc-sidebar {
+        width: 280px;
     }
 }
 
 /* Override AnnotationForm z-index to appear above ebook reader */
 :deep(.annotation-form-overlay) {
     z-index: 15000 !important;
+}
+
+.progress-toast {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10000;
+    pointer-events: none;
+}
+
+.toast-content {
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(12px);
+    color: #ffffff;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    
+    @media (prefers-color-scheme: dark) {
+        background: rgba(30, 30, 40, 0.95);
+    }
+}
+
+.toast-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: toast-spin 0.8s linear infinite;
+}
+
+@keyframes toast-spin {
+    to { transform: rotate(360deg); }
 }
 </style>

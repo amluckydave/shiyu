@@ -24,7 +24,7 @@ export function createArticleOpener(deps: ArticleOpenerDeps) {
     let normalizedPath = articlePath
     if (articlePath.startsWith("/reader")) {
       const pathUrl = new URL(articlePath, deps.getOrigin())
-      normalizedPath = pathUrl.searchParams.has("book") ? articlePath : "/articles.html"
+      normalizedPath = pathUrl.searchParams.has("book") ? articlePath : "/ebooks.html"
     }
 
     const acked = await sendNavigateMessage("article", normalizedPath, id, type)

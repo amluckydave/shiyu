@@ -25,7 +25,7 @@ function normalizeArticlePath(articlePath: string): string {
     if (pathUrl.searchParams.has('book')) {
       return articlePath
     }
-    return '/articles.html'
+    return '/ebooks.html'
   }
   return articlePath
 }

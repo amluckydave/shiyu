@@ -8,6 +8,8 @@
         "build": "vuepress build docs",
         "test": "vitest run",
         "clean": "rimraf docs/.vuepress/.cache docs/.vuepress/.temp docs/.vuepress/dist",
+        "dev:all": "powershell -ExecutionPolicy Bypass -File ./scripts/start-dev.ps1",
+        "dev:stop": "powershell -ExecutionPolicy Bypass -File ./scripts/stop-dev.ps1",
         "dev:legacy": "vuepress dev docs",
         "build:legacy": "vuepress build docs",
         "test:legacy": "vitest run",

@@ -70,7 +70,7 @@ describe('articleNavigation', () => {
         expect(parsedUrl.searchParams.get('type')).toBe('word')
     })
 
-    it('createArticleOpener should fallback to articles page for plain reader path', async () => {
+    it('createArticleOpener should fallback to ebooks page for plain reader path', async () => {
         const openWindow = vi.fn().mockReturnValue({ focus: vi.fn() })
         const opener = createArticleOpener({
             getOrigin: () => 'https://example.com',
@@ -82,7 +82,7 @@ describe('articleNavigation', () => {
         expect(openWindow).toHaveBeenCalledTimes(1)
         const openedUrl = openWindow.mock.calls[0][0] as string
         const parsedUrl = new URL(openedUrl)
-        expect(parsedUrl.pathname).toBe('/articles.html')
+        expect(parsedUrl.pathname).toBe('/ebooks.html')
         expect(parsedUrl.searchParams.get('highlight')).toBe('word1')
         expect(parsedUrl.searchParams.get('type')).toBe('word')
     })

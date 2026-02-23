@@ -46,7 +46,6 @@ const articleMeta = computed(() => {
   return articleMetaMap[articlePath.value] || null
 })
 
-// 计算阅读时间（假设每分钟阅读 200 个中文字符）
 const readingTime = computed(() => {
   if (!articleHtml.value) return 0
   const text = articleHtml.value.replace(/<[^>]*>/g, "")
@@ -74,64 +73,61 @@ watchEffect(() => {
 
 <template>
   <main class="article-content-view">
-    <div v-if="articleHtml" class="article-layout">
-      <div class="article-main">
-        <!-- 文章标题区域 -->
-        <header class="article-header">
-          <div class="header-top">
-            <RouterLink to="/articles.html" class="back-link">
-              <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-              返回列表
-            </RouterLink>
-          </div>
-          
-          <h1 class="article-title">{{ articleTitle }}</h1>
-          
-          <div v-if="articleMeta || readingTime" class="article-meta">
-            <span v-if="articleMeta?.date" class="meta-item">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-              {{ formatDate(articleMeta.date) }}
-            </span>
-            <span v-if="articleMeta?.author" class="meta-item">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                <circle cx="12" cy="7" r="4"></circle>
-              </svg>
-              {{ articleMeta.author }}
-            </span>
-            <span v-if="readingTime > 0" class="meta-item">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-                <circle cx="12" cy="12" r="10"></circle>
-                <polyline points="12 6 12 12 16 14"></polyline>
-              </svg>
-              约 {{ readingTime }} 分钟
-            </span>
-            <span v-if="articleMeta?.category" class="meta-item category">
-              <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
-                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                <line x1="7" y1="7" x2="7.01" y2="7"></line>
-              </svg>
-              {{ articleMeta.category }}
-            </span>
-          </div>
-        </header>
+    <!-- 目录组件 -->
+    <ArticleToc container-selector=".article-body" />
 
-        <BilingualReader>
-          <article class="article-body" v-html="articleHtml"></article>
-        </BilingualReader>
-      </div>
-      
-      <div class="article-sidebar">
-        <ArticleToc container-selector=".article-body" />
-      </div>
+    <div v-if="articleHtml" class="article-container">
+      <!-- 文章标题区域 -->
+      <header class="article-header">
+        <div class="header-top">
+          <RouterLink to="/articles.html" class="back-link">
+            <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2" fill="none">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            返回列表
+          </RouterLink>
+        </div>
+        
+        <h1 class="article-title">{{ articleTitle }}</h1>
+        
+        <div v-if="articleMeta || readingTime" class="article-meta">
+          <span v-if="articleMeta?.date" class="meta-item">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            {{ formatDate(articleMeta.date) }}
+          </span>
+          <span v-if="articleMeta?.author" class="meta-item">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+            {{ articleMeta.author }}
+          </span>
+          <span v-if="readingTime > 0" class="meta-item">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            约 {{ readingTime }} 分钟
+          </span>
+          <span v-if="articleMeta?.category" class="meta-item category">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none">
+              <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+              <line x1="7" y1="7" x2="7.01" y2="7"></line>
+            </svg>
+            {{ articleMeta.category }}
+          </span>
+        </div>
+      </header>
+
+      <BilingualReader>
+        <article class="article-body" v-html="articleHtml"></article>
+      </BilingualReader>
     </div>
 
     <section v-else class="article-missing">
@@ -145,63 +141,14 @@ watchEffect(() => {
 <style scoped>
 .article-content-view {
   margin: 0 auto;
-  max-width: 1440px;
+  max-width: 1200px;
   padding: 2rem 1.5rem 3rem;
   min-height: calc(100vh - 64px);
 }
 
-.article-layout {
-  display: flex;
-  gap: 2rem;
-  align-items: flex-start;
-  position: relative;
-}
-
-.article-main {
-  flex: 1;
-  min-width: 0;
-}
-
-.article-sidebar {
-  display: none;
-}
-
-@media (min-width: 1280px) {
-  .article-content-view {
-    padding: 2rem 2rem 3rem;
-  }
-
-  .article-layout {
-    gap: 3rem;
-  }
-
-  .article-main {
-    max-width: 960px;
-  }
-
-  .article-sidebar {
-    display: block;
-    width: 280px;
-    flex-shrink: 0;
-  }
-}
-
-@media (min-width: 1600px) {
-  .article-content-view {
-    max-width: 1600px;
-  }
-
-  .article-layout {
-    gap: 4rem;
-  }
-
-  .article-main {
-    max-width: 1080px;
-  }
-
-  .article-sidebar {
-    width: 320px;
-  }
+.article-container {
+  max-width: 960px;
+  margin: 0 auto;
 }
 
 /* 文章标题区域 */
@@ -529,15 +476,15 @@ watchEffect(() => {
   }
 
   .article-body :deep(h1) {
-    font-size: 1.75rem;
-  }
-
-  .article-body :deep(h2) {
     font-size: 1.5rem;
   }
 
+  .article-body :deep(h2) {
+    font-size: 1.35rem;
+  }
+
   .article-body :deep(h3) {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
   }
 
   .article-missing {
