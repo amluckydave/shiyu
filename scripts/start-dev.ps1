@@ -13,13 +13,14 @@ public static class WindowStateApi {
 }
 "@
 
-function Minimize-CurrentWindow {
+function Hide-CurrentWindow {
   try {
     $current = Get-Process -Id $PID -ErrorAction Stop
     if ($current.MainWindowHandle -ne 0) {
       [WindowStateApi]::ShowWindowAsync($current.MainWindowHandle, 2) | Out-Null
     }
-  } catch {
+  }
+  catch {
   }
 }
 
@@ -29,8 +30,8 @@ function Get-ListeningProcessId {
   )
 
   $connection = Get-NetTCPConnection -State Listen -ErrorAction SilentlyContinue |
-    Where-Object { $_.LocalPort -eq $Port } |
-    Select-Object -First 1
+  Where-Object { $_.LocalPort -eq $Port } |
+  Select-Object -First 1
 
   if (-not $connection) {
     return $null
@@ -153,5 +154,5 @@ Write-Host ("- {0}" -f $apiOutLog)
 Write-Host ("- {0}" -f $apiErrLog)
 
 if (-not $NoMinimizeStarterWindow) {
-  Minimize-CurrentWindow
+  Hide-CurrentWindow
 }

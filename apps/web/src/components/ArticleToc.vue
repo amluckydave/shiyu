@@ -230,29 +230,6 @@ watch(() => props.containerSelector, () => {
   left: 320px;
   animation: none;
 }
-.toc-badge {
-  position: relative;
-  top: auto;
-  right: auto;
-  min-width: 20px;
-  height: 20px;
-  padding: 0 6px;
-  background: rgba(255, 255, 255, 0.95);
-  color: #0ea5e9;
-  font-size: 11px;
-  font-weight: 800;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.3), 0 2px 6px rgba(0, 0, 0, 0.15);
-  margin-left: 6px;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.toc-toggle-btn:hover .toc-badge {
-  transform: scale(1.05);
-  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.4), 0 3px 8px rgba(0, 0, 0, 0.2);
-}
 /* Sidebar - Glassmorphism */
 .toc-sidebar {
   position: fixed;

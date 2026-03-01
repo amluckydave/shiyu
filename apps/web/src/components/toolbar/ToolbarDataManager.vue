@@ -70,11 +70,23 @@ function cancelImport() {
   pendingImportFile.value = null
   importStatus.value = null
 }
+
+const props = defineProps<{
+  variant?: 'toolbar' | 'dropdown'
+}>()
 </script>
 
 <template>
   <div class="toolbar-data-manager">
-    <button class="tool-btn" title="数据管理" @click="toggleModal">
+    <button v-if="props.variant === 'dropdown'" class="dropdown-item" title="数据管理" @click="toggleModal">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <ellipse cx="12" cy="5" rx="8" ry="3"></ellipse>
+        <path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path>
+        <path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"></path>
+      </svg>
+      <span>数据管理</span>
+    </button>
+    <button v-else class="tool-btn" title="数据管理" @click="toggleModal">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
         <ellipse cx="12" cy="5" rx="8" ry="3"></ellipse>
         <path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"></path>
@@ -136,21 +148,29 @@ function cancelImport() {
 <style scoped>
 .tool-btn {
   height: 36px;
-  border: 1px solid #d1d5db;
+  border: 1px solid rgba(203, 213, 225, 0.6);
   border-radius: 999px;
-  padding: 0 12px 0 10px;
-  background: #ffffff;
+  padding: 0 14px 0 10px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.9));
+  backdrop-filter: blur(8px);
   color: #475569;
   display: inline-flex;
   align-items: center;
   gap: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tool-btn:hover {
-  border-color: #a5b4fc;
-  background: #f8faff;
+  border-color: rgba(147, 197, 253, 0.6);
+  background: linear-gradient(180deg, rgba(240, 249, 255, 0.95), rgba(224, 242, 254, 0.5));
+  transform: translateY(-1px);
+  box-shadow: 0 3px 10px rgba(14, 165, 233, 0.1);
+}
+
+.tool-btn:hover svg {
+  color: #0ea5e9;
+  transform: scale(1.08);
 }
 
 .tool-btn svg {
@@ -160,12 +180,14 @@ function cancelImport() {
   stroke-linecap: round;
   stroke-linejoin: round;
   flex-shrink: 0;
+  transition: transform 0.2s ease, color 0.2s ease;
 }
 
 .tool-btn span {
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 600;
   white-space: nowrap;
+  letter-spacing: 0.1px;
 }
 
 .overlay {

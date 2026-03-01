@@ -39,3 +39,54 @@ export function createEmptyBilingualData(): BilingualData {
     translations: {}
   }
 }
+
+// ── Auth Models ──────────────────────────────────────────
+
+export type UserRole = "user" | "admin"
+
+export interface User {
+  id: string
+  email: string
+  nickname: string
+  role: UserRole
+  emailVerified: boolean
+  createdAt: number
+}
+
+/** Step 1: request a verification code */
+export interface SendCodeRequest {
+  email: string
+}
+
+/** Step 2: verify code (+ nickname for new users) */
+export interface VerifyCodeRequest {
+  email: string
+  code: string
+  nickname?: string
+}
+
+export interface AuthResponse {
+  user: User
+  token: string
+  isNewUser?: boolean
+}
+
+export interface SendCodeResponse {
+  success: true
+  message: string
+  /** true if this email hasn't registered yet */
+  isNewUser: boolean
+}
+
+export interface AdminUserListResponse {
+  users: User[]
+  total: number
+  page: number
+  pageSize: number
+}
+
+export interface AdminStatsResponse {
+  totalUsers: number
+  activeUsers: number
+  newUsersToday: number
+}

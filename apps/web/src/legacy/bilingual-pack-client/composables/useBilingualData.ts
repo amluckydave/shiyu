@@ -15,70 +15,113 @@ const data = reactive<BilingualData>({
 })
 
 const isInitialized = ref(false)
-const isReloading = ref(false)  // 防止 reload 时触发 save 导致无限循环
+const isReloading = ref(false)
 let vocabSaveTimer: ReturnType<typeof setTimeout> | null = null
 let sentenceSaveTimer: ReturnType<typeof setTimeout> | null = null
 let lastVocabSaveTime = 0
 let lastSentenceSaveTime = 0
 
+// ── Auth helpers ─────────────────────────────────────────────
+
+function getToken(): string | null {
+    return localStorage.getItem('shiyu_token')
+}
+
+function isLoggedIn(): boolean {
+    return !!getToken()
+}
+
+function getApiBase(): string {
+    // @ts-ignore
+    return (import.meta.env?.VITE_API_URL as string) || 'http://localhost:3100'
+}
+
+function authHeaders(): Record<string, string> {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+    const token = getToken()
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`
+    }
+    return headers
+}
+
+// ── Data loading ─────────────────────────────────────────────
+
 async function initData() {
     if (typeof window === 'undefined') return
     if (isInitialized.value) return
 
-    isReloading.value = true  // 防止触发 save
+    isReloading.value = true
     try {
-        const res = await fetch('/api/bilingual-data')
-        if (res.ok) {
-            const json = await res.json()
-            data.vocabulary = json.vocabulary || []
-            data.sentences = json.sentences || []
-            data.translations = json.translations || {}
-            isInitialized.value = true
+        if (isLoggedIn()) {
+            // Authenticated: load from user-specific API
+            const res = await fetch(`${getApiBase()}/api/v1/user/data`, {
+                headers: authHeaders()
+            })
+            if (res.ok) {
+                const json = await res.json()
+                data.vocabulary = json.vocabulary || []
+                data.sentences = json.sentences || []
+                data.translations = {}
+            } else if (res.status === 401) {
+                // Token expired, clear and don't load
+                data.vocabulary = []
+                data.sentences = []
+                data.translations = {}
+            }
         } else {
-            isInitialized.value = true
+            // Not logged in: empty data (login required)
+            data.vocabulary = []
+            data.sentences = []
+            data.translations = {}
         }
+        isInitialized.value = true
     } catch (e) {
         console.error('Error loading bilingual data:', e)
         isInitialized.value = true
     } finally {
-        // 延迟重置，确保 watch 不会在同一个 tick 触发
         setTimeout(() => { isReloading.value = false }, 100)
     }
 }
 
 async function reloadData() {
     if (typeof window === 'undefined') return
-    if (isReloading.value) return  // 避免重复 reload
+    if (isReloading.value) return
 
     const now = Date.now()
     if (now - lastVocabSaveTime < 1000 || now - lastSentenceSaveTime < 1000) {
         return
     }
 
-    isReloading.value = true  // 防止触发 save
+    isReloading.value = true
     try {
-        const res = await fetch('/api/bilingual-data')
-        if (res.ok) {
-            const json = await res.json()
-            data.vocabulary = json.vocabulary || []
-            data.sentences = json.sentences || []
-            data.translations = json.translations || {}
+        if (isLoggedIn()) {
+            const res = await fetch(`${getApiBase()}/api/v1/user/data`, {
+                headers: authHeaders()
+            })
+            if (res.ok) {
+                const json = await res.json()
+                data.vocabulary = json.vocabulary || []
+                data.sentences = json.sentences || []
+            }
         }
     } catch (e) {
         console.error('Error reloading bilingual data:', e)
     } finally {
-        // 延迟重置，确保 watch 不会在同一个 tick 触发
         setTimeout(() => { isReloading.value = false }, 100)
     }
 }
 
+// ── Save functions ───────────────────────────────────────────
+
 async function saveVocabulary(vocab: VocabularyWord[]) {
     if (typeof window === 'undefined') return
+    if (!isLoggedIn()) return
 
     try {
-        await fetch('/api/bilingual-data', {
+        await fetch(`${getApiBase()}/api/v1/user/data`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders(),
             body: JSON.stringify({ vocabulary: vocab })
         })
         lastVocabSaveTime = Date.now()
@@ -90,11 +133,12 @@ async function saveVocabulary(vocab: VocabularyWord[]) {
 
 async function saveSentences(sentenceList: SavedSentence[]) {
     if (typeof window === 'undefined') return
+    if (!isLoggedIn()) return
 
     try {
-        await fetch('/api/bilingual-data', {
+        await fetch(`${getApiBase()}/api/v1/user/data`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: authHeaders(),
             body: JSON.stringify({ sentences: sentenceList })
         })
         lastSentenceSaveTime = Date.now()
@@ -104,12 +148,15 @@ async function saveSentences(sentenceList: SavedSentence[]) {
     }
 }
 
+// ── Watch for changes (debounced save) ───────────────────────
+
 watch(() => data.vocabulary, (newVal) => {
     if (!isInitialized.value) return
-    if (isReloading.value) return  // reload 时不触发 save
+    if (isReloading.value) return
+    if (!isLoggedIn()) return
     if (vocabSaveTimer) clearTimeout(vocabSaveTimer)
     vocabSaveTimer = setTimeout(() => {
-        if (isReloading.value) return  // 再次检查
+        if (isReloading.value) return
         saveVocabulary([...newVal])
         vocabSaveTimer = null
     }, 500)
@@ -117,19 +164,25 @@ watch(() => data.vocabulary, (newVal) => {
 
 watch(() => data.sentences, (newVal) => {
     if (!isInitialized.value) return
-    if (isReloading.value) return  // reload 时不触发 save
+    if (isReloading.value) return
+    if (!isLoggedIn()) return
     if (sentenceSaveTimer) clearTimeout(sentenceSaveTimer)
     sentenceSaveTimer = setTimeout(() => {
-        if (isReloading.value) return  // 再次检查
+        if (isReloading.value) return
         saveSentences([...newVal])
         sentenceSaveTimer = null
     }, 500)
 }, { deep: true })
 
-initData()
+// Auto-init only if logged in
+if (isLoggedIn()) {
+    initData()
+}
 
 export function useBilingualData() {
     function saveTranslationUpdate(key: string, translation: SavedTranslation) {
+        // Translations still use the old shared API for now
+        // (they are article-level, not user-level)
         if (!data.translations) data.translations = {}
         data.translations[key] = translation
         fetch('/api/bilingual-data', {

@@ -125,10 +125,15 @@ export function useDataExport() {
 
             // 立即保存到服务器，不等待 watch 防抖
             try {
-                await fetch('/api/bilingual-data', {
+                const token = localStorage.getItem('shiyu_token')
+                const apiBase = typeof import.meta !== 'undefined'
+                    ? ((import.meta as any).env?.VITE_API_URL as string || 'http://localhost:3100')
+                    : 'http://localhost:3100'
+                await fetch(`${apiBase}/api/v1/user/data`, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                     },
                     body: JSON.stringify({
                         vocabulary: data.vocabulary,

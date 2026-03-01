@@ -1,3 +1,4 @@
+import "dotenv/config"
 import { createApp } from "./app.js"
 import { resolvePort } from "./config.js"
 
