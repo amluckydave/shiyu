@@ -1,6 +1,6 @@
 <div align="center">
 
-# 📚 Shiyu (识语)
+# 📚 Shiyu (拾语)
 
 <p align="center">
   <em>An intelligent bilingual English learning platform with AI-powered annotation, vocabulary management, and complex sentence analysis</em>
