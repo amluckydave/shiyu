@@ -32,12 +32,12 @@ export const useAuthStore = defineStore("auth", () => {
     // ── Actions ──────────────────────────────────────────────
 
     /** Step 1: Send verification code to email */
-    async function sendCode(email: string, turnstileToken?: string, adminOnly?: boolean): Promise<{ success: boolean; isNewUser?: boolean; remainingMs?: number }> {
+    async function sendCode(email: string, turnstileToken?: string, adminOnly?: boolean, resend?: boolean): Promise<{ success: boolean; isNewUser?: boolean; remainingMs?: number }> {
         loading.value = true
         error.value = null
         try {
             // Gmail SMTP can be very slow (10-30s), give it plenty of time
-            const response = await api.post<SendCodeResponse>(API_ROUTES.authSendCode, { email, turnstileToken, adminOnly }, { timeout: 60000 })
+            const response = await api.post<SendCodeResponse>(API_ROUTES.authSendCode, { email, turnstileToken, adminOnly, resend }, { timeout: 60000 })
             return { success: true, isNewUser: response.data.isNewUser }
         } catch (err: any) {
             if (err.response?.status === 429 && err.response?.data?.remainingMs) {
@@ -63,11 +63,11 @@ export const useAuthStore = defineStore("auth", () => {
     }
 
     /** Step 2: Verify code (login or register) */
-    async function verifyCode(email: string, code: string, nickname?: string): Promise<boolean> {
+    async function verifyCode(email: string, code: string, nickname?: string, invitationCode?: string): Promise<boolean> {
         loading.value = true
         error.value = null
         try {
-            const response = await api.post<AuthResponse>(API_ROUTES.authVerifyCode, { email, code, nickname })
+            const response = await api.post<AuthResponse>(API_ROUTES.authVerifyCode, { email, code, nickname, invitationCode })
             user.value = response.data.user
             token.value = response.data.token
             localStorage.setItem("shiyu_token", response.data.token)

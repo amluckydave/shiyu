@@ -5,29 +5,29 @@ import os from "node:os"
 let db: Database.Database | null = null
 
 export function resolveDbPath(): string {
-    const fromEnv = process.env.SHIYU_DB_PATH
-    if (fromEnv && fromEnv.trim()) {
-        return fromEnv
-    }
-    return path.join(os.homedir(), ".shiyu.db")
+  const fromEnv = process.env.SHIYU_DB_PATH
+  if (fromEnv && fromEnv.trim()) {
+    return fromEnv
+  }
+  return path.join(os.homedir(), ".shiyu.db")
 }
 
 export function getDatabase(dbPath?: string): Database.Database {
-    if (db) return db
+  if (db) return db
 
-    const resolvedPath = dbPath ?? resolveDbPath()
-    db = new Database(resolvedPath)
+  const resolvedPath = dbPath ?? resolveDbPath()
+  db = new Database(resolvedPath)
 
-    // Enable WAL mode for better concurrency
-    db.pragma("journal_mode = WAL")
-    db.pragma("foreign_keys = ON")
+  // Enable WAL mode for better concurrency
+  db.pragma("journal_mode = WAL")
+  db.pragma("foreign_keys = ON")
 
-    initializeTables(db)
-    return db
+  initializeTables(db)
+  return db
 }
 
 function initializeTables(database: Database.Database): void {
-    database.exec(`
+  database.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id TEXT PRIMARY KEY,
       email TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -79,15 +79,27 @@ function initializeTables(database: Database.Database): void {
     );
 
     CREATE INDEX IF NOT EXISTS idx_sentences_user ON sentences(user_id);
+
+    CREATE TABLE IF NOT EXISTS invitation_codes (
+      id TEXT PRIMARY KEY,
+      code TEXT NOT NULL UNIQUE,
+      max_uses INTEGER NOT NULL DEFAULT 1,
+      used_count INTEGER NOT NULL DEFAULT 0,
+      created_by TEXT NOT NULL REFERENCES users(id),
+      created_at INTEGER NOT NULL,
+      expires_at INTEGER
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_invitation_codes_code ON invitation_codes(code);
   `)
 
-    // ── Migration: remove password_hash column if it exists ──
-    const columns = database.pragma("table_info(users)") as Array<{ name: string }>
-    const hasPasswordHash = columns.some((c) => c.name === "password_hash")
+  // ── Migration: remove password_hash column if it exists ──
+  const columns = database.pragma("table_info(users)") as Array<{ name: string }>
+  const hasPasswordHash = columns.some((c) => c.name === "password_hash")
 
-    if (hasPasswordHash) {
-        console.log("[DB] Migrating: removing password_hash column from users table...")
-        database.exec(`
+  if (hasPasswordHash) {
+    console.log("[DB] Migrating: removing password_hash column from users table...")
+    database.exec(`
       CREATE TABLE users_new (
         id TEXT PRIMARY KEY,
         email TEXT NOT NULL UNIQUE COLLATE NOCASE,
@@ -106,23 +118,23 @@ function initializeTables(database: Database.Database): void {
       ALTER TABLE users_new RENAME TO users;
       CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     `)
-        console.log("[DB] Migration complete.")
-    }
+    console.log("[DB] Migration complete.")
+  }
 }
 
 /** Close the database connection (useful for testing) */
 export function closeDatabase(): void {
-    if (db) {
-        db.close()
-        db = null
-    }
+  if (db) {
+    db.close()
+    db = null
+  }
 }
 
 /** Create an in-memory database for testing */
 export function createTestDatabase(): Database.Database {
-    const testDb = new Database(":memory:")
-    testDb.pragma("journal_mode = WAL")
-    testDb.pragma("foreign_keys = ON")
-    initializeTables(testDb)
-    return testDb
+  const testDb = new Database(":memory:")
+  testDb.pragma("journal_mode = WAL")
+  testDb.pragma("foreign_keys = ON")
+  initializeTables(testDb)
+  return testDb
 }

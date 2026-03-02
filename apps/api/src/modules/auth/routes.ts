@@ -2,6 +2,7 @@ import { Router, type Request, type Response } from "express"
 import { API_ROUTES } from "@shiyu/shared"
 import type { SendCodeRequest, VerifyCodeRequest, ApiErrorResponse, AuthResponse, SendCodeResponse } from "@shiyu/shared"
 import { UserRepository, VerificationCodeRepository } from "./repository.js"
+import { InvitationCodeRepository } from "../admin/repository.js"
 import { generateToken, requireAuth } from "../../middleware/auth.js"
 import { generateVerificationCode, sendVerificationEmail } from "../../services/email.js"
 import { verifyTurnstileToken } from "../../services/turnstile.js"
@@ -13,11 +14,12 @@ export function createAuthRouter(db: Database.Database): Router {
     const router = Router()
     const userRepo = new UserRepository(db)
     const codeRepo = new VerificationCodeRepository(db)
+    const invCodeRepo = new InvitationCodeRepository(db)
 
     // ── Send Verification Code ───────────────────────────────
     router.post(API_ROUTES.authSendCode, async (req: Request, res: Response) => {
         try {
-            const { email, turnstileToken, adminOnly } = req.body as SendCodeRequest & { turnstileToken?: string; adminOnly?: boolean }
+            const { email, turnstileToken, adminOnly, resend } = req.body as SendCodeRequest & { turnstileToken?: string; adminOnly?: boolean; resend?: boolean }
 
             if (!email) {
                 res.status(400).json({ error: "请输入邮箱地址。" } as ApiErrorResponse)
@@ -30,7 +32,7 @@ export function createAuthRouter(db: Database.Database): Router {
             }
 
             // Verify Cloudflare Turnstile token (人机验证)
-            if (process.env.TURNSTILE_SECRET_KEY) {
+            if (process.env.TURNSTILE_SECRET_KEY && !resend) {
                 if (!turnstileToken) {
                     res.status(400).json({ error: "请完成人机验证。" } as ApiErrorResponse)
                     return
@@ -90,10 +92,26 @@ export function createAuthRouter(db: Database.Database): Router {
         }
     })
 
+    // ── Check if email is already registered ─────────────────
+    router.post(API_ROUTES.authCheckEmail, (req: Request, res: Response) => {
+        try {
+            const { email } = req.body as { email: string }
+            if (!email) {
+                res.status(400).json({ error: "请输入邮箱。" } as ApiErrorResponse)
+                return
+            }
+            const user = userRepo.findByEmail(email)
+            res.json({ exists: !!user })
+        } catch (error) {
+            console.error("Check email error:", error)
+            res.status(500).json({ error: "服务器错误。" } as ApiErrorResponse)
+        }
+    })
+
     // ── Verify Code (Login / Register) ───────────────────────
     router.post(API_ROUTES.authVerifyCode, (req: Request, res: Response) => {
         try {
-            const { email, code, nickname } = req.body as VerifyCodeRequest
+            const { email, code, nickname, invitationCode } = req.body as VerifyCodeRequest
 
             if (!email || !code) {
                 res.status(400).json({ error: "请输入邮箱和验证码。" } as ApiErrorResponse)
@@ -121,6 +139,18 @@ export function createAuthRouter(db: Database.Database): Router {
                     res.status(400).json({ error: "昵称最多 50 个字符。" } as ApiErrorResponse)
                     return
                 }
+
+                // New user — invitation code is required
+                if (!invitationCode || !invitationCode.trim()) {
+                    res.status(400).json({ error: "请输入邀请码。" } as ApiErrorResponse)
+                    return
+                }
+                const invResult = invCodeRepo.validateAndUseCode(invitationCode.trim())
+                if (!invResult.valid) {
+                    res.status(400).json({ error: invResult.error || "邀请码无效。" } as ApiErrorResponse)
+                    return
+                }
+
                 user = userRepo.createUser(email, nickname.trim())
                 isNewUser = true
             }

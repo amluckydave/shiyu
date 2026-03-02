@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue"
-import { useRouter } from "vue-router"
+import { useRouter, RouterLink } from "vue-router"
 import { useAuthStore } from "../stores/auth.js"
 
 const router = useRouter()
@@ -11,7 +11,6 @@ type Step = "email" | "code"
 const step = ref<Step>("email")
 const email = ref("")
 const code = ref("")
-const nickname = ref("")
 const isNewUser = ref(false)
 const submitted = ref(false)
 const codeSent = ref(false)
@@ -40,12 +39,7 @@ const codeError = computed(() => {
   return ""
 })
 
-const nicknameError = computed(() => {
-  if (!submitted.value || !isNewUser.value || step.value !== "code") return ""
-  if (!nickname.value.trim()) return "请输入昵称"
-  if (nickname.value.trim().length > 50) return "昵称最多 50 个字符"
-  return ""
-})
+
 
 // ── Actions ────────────────────────────────────────────
 async function handleSendCode() {
@@ -58,9 +52,14 @@ async function handleSendCode() {
 
   const result = await auth.sendCode(email.value, turnstileToken.value || undefined)
   if (result.success || result.remainingMs) {
+    // If new user, redirect to register page
+    if (result.isNewUser) {
+      router.push({ path: '/register', query: { email: email.value } })
+      return
+    }
     step.value = "code"
     codeSent.value = true
-    isNewUser.value = result.isNewUser ?? false
+    isNewUser.value = false
     submitted.value = false
     
     const seconds = result.remainingMs ? Math.ceil(result.remainingMs / 1000) : 300
@@ -74,7 +73,7 @@ async function handleSendCode() {
 async function handleResendCode() {
   if (countdown.value > 0) return
   auth.error = null
-  const result = await auth.sendCode(email.value)
+  const result = await auth.sendCode(email.value, undefined, undefined, true)
   if (result.success || result.remainingMs) {
     const seconds = result.remainingMs ? Math.ceil(result.remainingMs / 1000) : 300
     startCountdown(seconds)
@@ -84,12 +83,10 @@ async function handleResendCode() {
 async function handleVerifyCode() {
   submitted.value = true
   if (codeError.value) return
-  if (isNewUser.value && nicknameError.value) return
 
   const success = await auth.verifyCode(
     email.value,
-    code.value,
-    isNewUser.value ? nickname.value.trim() : undefined
+    code.value
   )
   if (success) {
     const redirect = (router.currentRoute.value.query.redirect as string) || "/"
@@ -100,7 +97,6 @@ async function handleVerifyCode() {
 function goBack() {
   step.value = "email"
   code.value = ""
-  nickname.value = ""
   submitted.value = false
   auth.error = null
 }
@@ -165,7 +161,7 @@ onUnmounted(() => {
         <div class="auth-logo">
           <img src="/logo2.png" alt="logo" class="auth-logo-img" />
         </div>
-        <h1 class="auth-title">{{ step === 'email' ? '登录 / 注册' : (isNewUser ? '完成注册' : '验证登录') }}</h1>
+        <h1 class="auth-title">{{ step === 'email' ? '登录' : '验证登录' }}</h1>
         <p class="auth-subtitle">{{ step === 'email' ? '输入邮箱获取验证码' : `验证码已发送到 ${email}` }}</p>
       </div>
 
@@ -230,30 +226,12 @@ onUnmounted(() => {
           </button>
         </div>
 
-        <div v-if="isNewUser" class="form-group" :class="{ 'has-error': nicknameError }">
-          <label class="form-label" for="auth-nickname">设置昵称</label>
-          <div class="input-wrapper">
-            <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-              <circle cx="12" cy="7" r="4"></circle>
-            </svg>
-            <input
-              id="auth-nickname"
-              v-model="nickname"
-              type="text"
-              class="form-input"
-              placeholder="你的昵称"
-              autocomplete="nickname"
-            />
-          </div>
-          <p v-if="nicknameError" class="form-error">{{ nicknameError }}</p>
-        </div>
 
         <div v-if="auth.error" class="form-alert">{{ auth.error }}</div>
 
         <button type="submit" class="auth-btn" :disabled="auth.loading">
           <span v-if="auth.loading" class="spinner"></span>
-          <span>{{ auth.loading ? "验证中..." : (isNewUser ? "注册并登录" : "验证登录") }}</span>
+          <span>{{ auth.loading ? "验证中..." : "验证登录" }}</span>
         </button>
 
         <button type="button" class="back-btn" @click="goBack">
@@ -261,6 +239,11 @@ onUnmounted(() => {
           <span>返回修改邮箱</span>
         </button>
       </form>
+
+      <div class="auth-footer">
+        <span>还没有账号？</span>
+        <RouterLink to="/register" class="auth-link">立即注册</RouterLink>
+      </div>
     </div>
   </div>
 </template>
@@ -437,4 +420,20 @@ onUnmounted(() => {
 .turnstile-wrap:hover {
   border-color: rgba(14, 165, 233, 0.25);
 }
+
+.auth-footer {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 14px;
+  color: #94a3b8;
+}
+
+.auth-link {
+  color: #38bdf8;
+  font-weight: 600;
+  text-decoration: none;
+  margin-left: 4px;
+  transition: color 0.2s;
+}
+.auth-link:hover { color: #7dd3fc; }
 </style>

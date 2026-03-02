@@ -87,8 +87,8 @@
                   </svg>
                 </div>
                 <div class="card-text">
-                  <h3>Smart Annotation</h3>
-                  <p>Instant definitions & phonetics</p>
+                  <h3>智能标注</h3>
+                  <p>即时释义与发音辅助</p>
                 </div>
               </div>
             </div>
@@ -106,17 +106,17 @@
                   </svg>
                 </div>
                 <div class="card-text">
-                  <h3>Vocabulary Manager</h3>
-                  <p>Track your progress</p>
+                  <h3>生词管理</h3>
+                  <p>记录你的学习轨迹</p>
                 </div>
                 <div class="mini-stats">
                   <div class="mini-stat">
                     <span class="value">1,240</span>
-                    <span class="label">Words</span>
+                    <span class="label">词汇</span>
                   </div>
                   <div class="mini-stat">
                     <span class="value">85%</span>
-                    <span class="label">Mastery</span>
+                    <span class="label">掌握率</span>
                   </div>
                 </div>
               </div>
@@ -134,8 +134,8 @@
                   </svg>
                 </div>
                 <div class="card-text">
-                  <h3>Sentence Analysis</h3>
-                  <p>Deep structure breakdown</p>
+                  <h3>长难句分析</h3>
+                  <p>深度拆解句子结构</p>
                 </div>
               </div>
             </div>

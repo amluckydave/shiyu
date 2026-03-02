@@ -68,7 +68,7 @@ onUnmounted(() => document.removeEventListener('click', onClickOutside))
           <span class="brand-mark">
             <img class="brand-logo" src="/logo2.png" alt="logo" />
           </span>
-          <span class="brand-text">Bilingual Reader</span>
+          <span class="brand-text">拾语</span>
         </RouterLink>
 
         <div class="menu-links">
@@ -305,11 +305,11 @@ a {
 }
 
 .brand-text {
-  font-size: 16px;
+  font-size: 19px;
   font-weight: 800;
-  letter-spacing: -0.2px;
+  letter-spacing: 2px;
   white-space: nowrap;
-  background: linear-gradient(135deg, #0c4a6e 0%, #0f766e 100%);
+  background: linear-gradient(135deg, #0c4a6e 0%, #0d9488 50%, #0f766e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

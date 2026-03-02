@@ -43,13 +43,13 @@ export async function sendVerificationEmail(toEmail: string, code: string): Prom
   console.log(`[Auth] Sending verification code to ${toEmail}...`)
 
   await transport.sendMail({
-    from: `"Bilingual Reader" <${user}>`,
+    from: `"拾语" <${user}>`,
     to: toEmail,
-    subject: "【Bilingual Reader】验证码",
+    subject: `【拾语】验证码：${code}`,
     html: `
       <div style="max-width:480px;margin:0 auto;padding:32px;font-family:'Segoe UI',Arial,sans-serif;">
         <div style="text-align:center;margin-bottom:24px;">
-          <h2 style="color:#0f172a;margin:0 0 8px;">Bilingual Reader</h2>
+          <h2 style="color:#0f172a;margin:0 0 8px;">拾语</h2>
           <p style="color:#64748b;margin:0;font-size:14px;">邮箱验证</p>
         </div>
         <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:24px;text-align:center;">

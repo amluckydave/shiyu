@@ -10,10 +10,12 @@ import ArticleListView from "./views/ArticleListView.vue"
 import ArticleContentView from "./views/ArticleContentView.vue"
 import EbookListView from "./views/EbookListView.vue"
 import LoginView from "./views/LoginView.vue"
+import RegisterView from "./views/RegisterView.vue"
 import AdminLayout from "./views/admin/AdminLayout.vue"
 import AdminDashboard from "./views/admin/AdminDashboard.vue"
 import AdminUsers from "./views/admin/AdminUsers.vue"
 import AdminLoginView from "./views/admin/AdminLoginView.vue"
+import AdminInvitationCodes from "./views/admin/AdminInvitationCodes.vue"
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -29,9 +31,14 @@ export const routes: RouteRecordRaw[] = [
   // ── Auth Pages (public) ────────────────────────────────
   {
     path: "/login",
-    alias: ["/register"],
     name: "login",
     component: LoginView,
+    meta: { guest: true }
+  },
+  {
+    path: "/register",
+    name: "register",
+    component: RegisterView,
     meta: { guest: true }
   },
 
@@ -112,6 +119,11 @@ export const routes: RouteRecordRaw[] = [
         path: "users",
         name: "adminUsers",
         component: AdminUsers
+      },
+      {
+        path: "invitation-codes",
+        name: "adminInvitationCodes",
+        component: AdminInvitationCodes
       }
     ]
   },

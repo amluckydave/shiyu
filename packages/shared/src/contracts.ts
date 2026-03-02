@@ -10,12 +10,14 @@ export const API_ROUTES = {
   // Auth — verification code flow
   authSendCode: "/api/v1/auth/send-code",
   authVerifyCode: "/api/v1/auth/verify-code",
+  authCheckEmail: "/api/v1/auth/check-email",
   authLogout: "/api/v1/auth/logout",
   authMe: "/api/v1/auth/me",
 
   // Admin
   adminUsers: "/api/v1/admin/users",
   adminStats: "/api/v1/admin/stats",
+  adminInvitationCodes: "/api/v1/admin/invitation-codes",
 
   // User data (per-user vocabulary/sentences)
   userData: "/api/v1/user/data",

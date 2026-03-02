@@ -44,10 +44,13 @@ Shiyu is a modern bilingual reading platform designed for English learners. Buil
 - **Daily Quote** — Daily inspirational quotes with calendar-based browsing
 
 ### 🔐 Auth & User System
+- **Separated Login & Register** — Distinct flows for a better user experience
 - **Email + Code Login** — Passwordless authentication via email verification codes
+- **Smart Email Validation** — Asynchronous email existence check on blur during registration
+- **Secure Invitation Codes** — Single-use, atomic validation, mixed-case codes (case-insensitive)
 - **JWT Token** — 7-day token stored in localStorage, auto-refresh on expiry
 - **Admin Dashboard** — User management with role-based access control
-- **Cloudflare Turnstile** — Optional bot protection for login
+- **Cloudflare Turnstile** — Optional bot protection for login/register (intelligently skipped on code resend)
 
 ### 📊 Data Management
 - **Import/Export** — Backup and restore vocabulary, sentences, and API settings (JSON)
@@ -59,6 +62,7 @@ Shiyu is a modern bilingual reading platform designed for English learners. Buil
 - **Micro-animations** — Hover scale, translateX shifts, gradient transitions
 - **Responsive Design** — Adapts from desktop to mobile
 - **Gradient Accent** — Animated top accent line (blue → cyan → teal → green)
+- **Local Branding** — Beautiful "拾语" Chinese branding on the homepage and navigation bar
 
 ## 🚀 Quick Start
 

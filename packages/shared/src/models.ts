@@ -63,6 +63,7 @@ export interface VerifyCodeRequest {
   email: string
   code: string
   nickname?: string
+  invitationCode?: string
 }
 
 export interface AuthResponse {
@@ -89,4 +90,23 @@ export interface AdminStatsResponse {
   totalUsers: number
   activeUsers: number
   newUsersToday: number
+}
+
+// ── Invitation Code Models ───────────────────────────────
+
+export interface InvitationCode {
+  id: string
+  code: string
+  maxUses: number
+  usedCount: number
+  createdBy: string
+  createdAt: number
+  expiresAt?: number
+}
+
+export interface AdminInvitationCodeListResponse {
+  codes: InvitationCode[]
+  total: number
+  page: number
+  pageSize: number
 }
