@@ -107,6 +107,10 @@ src-tauri/
 | 图片 | `~/.shiyu/images/` |
 | TTS 缓存 | `~/.shiyu/tts-cache/` |
 
+## 🔗 友情链接
+
+- [LINUX DO](https://linux.do/) — 感谢 LINUX DO 社区的支持与推广
+
 ---
 
 <div align="center">
