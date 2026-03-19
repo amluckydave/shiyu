@@ -1,0 +1,47 @@
+/**
+ * parsed-sentence.css — 句子成分划分的共享样式
+ *
+ * 供 v-html 渲染的 parsedHtml 内容使用，包含：
+ * - ps-* 系列颜色/字体类
+ * - .parsed-html-content 容器布局
+ * - .sentence-parsed-inline / .sentence-note-inline / .sentence-translation-inline 行内布局
+ * - .sentence-parsed-box 渐变背景
+ */
+
+/* ── 成分颜色类（v-html 渲染，不能 scoped） ── */
+.ps-predicate { color: #2563eb; font-weight: 700; }
+.ps-nonfinite { color: #7c3aed; text-decoration: underline; text-decoration-style: wavy; text-underline-offset: 3px; }
+.ps-connector { color: #dc2626; font-weight: 600; }
+.ps-italic { font-style: italic; }
+.ps-main { font-weight: 700; }
+.ps-structure { color: #059669; font-weight: 600; }
+.ps-symbol { color: #e07b39; font-weight: 800; font-family: var(--font-mono); }
+
+/* ── 容器布局 ── */
+.parsed-html-content { line-height: 2.2; font-family: var(--font-serif); }
+.sentence-parsed-box { background: linear-gradient(135deg, #faf5ff 0%, var(--c-bg-lighter) 100%); }
+
+.sentence-parsed-inline {
+  padding: 12px 16px;
+  font-size: 15px;
+  line-height: 2.2;
+  color: var(--c-text);
+  word-break: break-word;
+  font-family: var(--font-serif);
+}
+
+.sentence-note-inline {
+  padding: 2px 14px 4px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #8b5cf6;
+  font-style: italic;
+}
+
+.sentence-translation-inline {
+  padding: 8px 16px 12px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--c-text-lighter);
+  border-top: 1px solid var(--c-border-light, #f1f5f9);
+}

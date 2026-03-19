@@ -1,0 +1,160 @@
+/**
+ * 标注高亮样式（唯一来源）
+ * ⚠️ 不得在其他CSS文件中定义 .annotated-* 规则
+ * 单词标注：淡红色
+ * 句子标注：淡蓝色
+ *
+ * 颜色方案、闪烁动画参数、CSS 优先级规则均已固定
+ */
+
+/* ═══════════════════════════════════════════════════
+   单词标注 — 淡红 Light Red / Rose
+   ═══════════════════════════════════════════════════ */
+
+.reader-body mark.annotated-word {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.14), rgba(251, 113, 133, 0.1));
+  border-bottom: none;
+  cursor: pointer;
+  padding: 1px 2px;
+  margin: 0 -2px;
+  display: inline;
+  line-height: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background 0.3s ease;
+  color: inherit;
+  border-radius: 3px;
+}
+
+.reader-body mark.annotated-word:hover {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.25), rgba(251, 113, 133, 0.18));
+}
+
+/* 单词 — 低调模式 */
+.reader-body mark.annotated-word-subtle {
+  background: transparent;
+  border-bottom: none;
+  cursor: pointer;
+  padding: 1px 2px;
+  margin: 0 -2px;
+  display: inline;
+  line-height: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background 0.25s ease;
+  color: inherit;
+  border-radius: 3px;
+}
+
+.reader-body mark.annotated-word-subtle:hover {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.12), rgba(251, 113, 133, 0.08));
+}
+
+/* ═══════════════════════════════════════════════════
+   句子标注 — 淡蓝 Light Blue
+   ═══════════════════════════════════════════════════ */
+
+.reader-body mark.annotated-sentence {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(99, 102, 241, 0.1));
+  padding: 2px 0;
+  cursor: pointer;
+  border-radius: 3px;
+  display: inline;
+  line-height: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background 0.3s ease;
+  color: inherit;
+}
+
+.reader-body mark.annotated-sentence:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(99, 102, 241, 0.18));
+}
+
+/* 句子 — 低调模式 */
+.reader-body mark.annotated-sentence-subtle {
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 0;
+  display: inline;
+  line-height: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  transition: background 0.25s ease;
+  color: inherit;
+}
+
+.reader-body mark.annotated-sentence-subtle:hover {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.06));
+  border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════════════
+   单词闪烁 — 淡红呼吸
+   ═══════════════════════════════════════════════════ */
+
+@keyframes flash-word {
+  0%   { background: linear-gradient(135deg, rgba(244, 63, 94, 0.14), rgba(251, 113, 133, 0.1)); }
+  8%   { background: rgba(244, 63, 94, 0.02); }
+  22%  { background: rgba(244, 63, 94, 0.26); }
+  36%  { background: rgba(244, 63, 94, 0.05); }
+  50%  { background: rgba(244, 63, 94, 0.22); }
+  64%  { background: rgba(244, 63, 94, 0.08); }
+  78%  { background: rgba(244, 63, 94, 0.17); }
+  90%  { background: rgba(244, 63, 94, 0.12); }
+  100% { background: linear-gradient(135deg, rgba(244, 63, 94, 0.14), rgba(251, 113, 133, 0.1)); }
+}
+
+.reader-body mark.annotated-word.flashing,
+.reader-body mark.annotated-word-subtle.flashing {
+  animation: flash-word 3.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) 1 !important;
+  border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════════════
+   句子闪烁 — 淡蓝呼吸
+   ═══════════════════════════════════════════════════ */
+
+@keyframes flash-sentence {
+  0%   { background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(99, 102, 241, 0.1)); }
+  8%   { background: rgba(59, 130, 246, 0.02); }
+  22%  { background: rgba(59, 130, 246, 0.24); }
+  36%  { background: rgba(59, 130, 246, 0.05); }
+  50%  { background: rgba(59, 130, 246, 0.20); }
+  64%  { background: rgba(59, 130, 246, 0.07); }
+  78%  { background: rgba(59, 130, 246, 0.16); }
+  90%  { background: rgba(59, 130, 246, 0.11); }
+  100% { background: linear-gradient(135deg, rgba(59, 130, 246, 0.14), rgba(99, 102, 241, 0.1)); }
+}
+
+.reader-body mark.annotated-sentence.flashing,
+.reader-body mark.annotated-sentence-subtle.flashing {
+  animation: flash-sentence 3.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) 1 !important;
+  border-radius: 3px;
+}
+
+/* ═══════════════════════════════════════════════════
+   嵌套修复 & 隐藏状态
+   ═══════════════════════════════════════════════════ */
+
+.reader-body .annotated-sentence mark.annotated-word,
+.reader-body .annotated-sentence mark.annotated-word-subtle,
+.reader-body .annotated-sentence-subtle mark.annotated-word,
+.reader-body .annotated-sentence-subtle mark.annotated-word-subtle {
+  background: inherit;
+}
+
+.reader-body.annotations-hidden mark.annotated-word,
+.reader-body.annotations-hidden mark.annotated-word-subtle {
+  background: transparent !important;
+  color: inherit !important;
+  cursor: text;
+}
+
+.reader-body.annotations-hidden mark.annotated-sentence,
+.reader-body.annotations-hidden mark.annotated-sentence-subtle {
+  background: transparent !important;
+  color: inherit !important;
+  cursor: text;
+}

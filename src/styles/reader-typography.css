@@ -1,0 +1,295 @@
+/**
+ * 阅读器 Markdown 排版样式
+ * 从 ArticlesView.vue 提取的 :deep() 排版样式
+ * 作为非 scoped CSS 导入，因为 .reader-body 是阅读器唯一的容器类
+ */
+
+.reader-body {
+  color: var(--c-text);
+  line-height: 1.9;
+  font-size: 1.1rem;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-family: var(--font-serif);
+}
+
+/* 标题系列 */
+.reader-body h1 {
+  font-size: 1.8em;
+  font-weight: 800;
+  color: var(--c-text);
+  margin: 2.5rem 0 1rem;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid var(--c-border-light, #f1f5f9);
+}
+
+.reader-body h2 {
+  font-size: 1.5em;
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 2.2rem 0 0.8rem;
+  line-height: 1.35;
+  padding-left: 14px;
+  border-left: 4px solid #007AFF;
+}
+
+.reader-body h3 {
+  font-size: 1.25em;
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 1.8rem 0 0.6rem;
+  line-height: 1.4;
+}
+
+.reader-body h4 {
+  font-size: 1.1em;
+  font-weight: 600;
+  color: var(--c-text);
+  margin: 1.5rem 0 0.5rem;
+}
+
+.reader-body h5,
+.reader-body h6 {
+  font-size: 1em;
+  font-weight: 600;
+  color: var(--c-text-lighter);
+  margin: 1.2rem 0 0.4rem;
+}
+
+.reader-body h6 { color: var(--c-text-lighter); }
+
+/* 段落 */
+.reader-body p {
+  margin: 1rem 0;
+  text-align: justify;
+}
+
+/* 图片 */
+.reader-body img {
+  max-width: 75%;
+  max-height: 500px;
+  height: auto;
+  border-radius: 10px;
+  margin: 1.5rem auto;
+  display: block;
+  object-fit: contain;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease;
+}
+
+.reader-body img:hover {
+  transform: scale(1.02);
+}
+
+.reader-body figure {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.reader-body figcaption {
+  font-size: 0.85em;
+  color: var(--c-text-lighter);
+  margin-top: 0.6rem;
+  font-style: italic;
+}
+
+/* 引用块 */
+.reader-body blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-left: 4px solid;
+  border-image: linear-gradient(to bottom, #007AFF, #409CFF) 1;
+  background: linear-gradient(135deg, var(--c-bg-lighter), var(--c-bg-lighter));
+  border-radius: 0 12px 12px 0;
+  color: var(--c-text-lighter);
+  font-style: italic;
+  position: relative;
+}
+
+.reader-body blockquote p {
+  margin: 0.5rem 0;
+}
+
+.reader-body blockquote blockquote {
+  margin: 0.8rem 0;
+  border-left-width: 3px;
+}
+
+/* 列表 */
+.reader-body ul,
+.reader-body ol {
+  margin: 1rem 0;
+  padding-left: 1.8rem;
+}
+
+.reader-body ul { list-style-type: disc; }
+.reader-body ol { list-style-type: decimal; }
+
+.reader-body li {
+  margin: 0.4rem 0;
+  line-height: 1.8;
+}
+
+.reader-body li > ul,
+.reader-body li > ol {
+  margin: 0.3rem 0;
+}
+
+.reader-body ul ul { list-style-type: circle; }
+.reader-body ul ul ul { list-style-type: square; }
+
+/* 行内代码 */
+.reader-body code {
+  background: linear-gradient(135deg, var(--c-border-light, #f1f5f9), var(--c-border));
+  color: #e11d48;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 0.88em;
+  font-family: var(--font-mono);
+  word-break: break-word;
+}
+
+/* 代码块 */
+.reader-body pre {
+  margin: 1.5rem 0;
+  padding: 1.2rem 1.5rem;
+  background: var(--c-text);
+  color: var(--c-border);
+  border-radius: 12px;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.6;
+  border: 1px solid var(--c-text);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.reader-body pre code {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  border-radius: 0;
+  font-size: 1em;
+}
+
+/* 表格 */
+.reader-body table {
+  width: 100%;
+  margin: 1.5rem 0;
+  border-collapse: collapse;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--c-border);
+  font-size: 0.92em;
+}
+
+.reader-body thead {
+  background: linear-gradient(135deg, var(--c-bg-lighter), var(--c-border-light, #f1f5f9));
+}
+
+.reader-body th {
+  padding: 10px 14px;
+  text-align: left;
+  font-weight: 700;
+  color: var(--c-text);
+  border-bottom: 2px solid var(--c-border);
+}
+
+.reader-body td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--c-border-light, #f1f5f9);
+  color: var(--c-text-lighter);
+}
+
+.reader-body tbody tr:nth-child(even) {
+  background: var(--c-bg-lighter);
+}
+
+.reader-body tbody tr:hover {
+  background: var(--c-bg-lighter);
+}
+
+/* 分隔线 */
+.reader-body hr {
+  margin: 2.5rem auto;
+  border: none;
+  height: 2px;
+  max-width: 120px;
+  background: linear-gradient(90deg, transparent, var(--c-border), transparent);
+}
+
+/* 链接 */
+.reader-body a {
+  color: #007AFF;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.reader-body a:hover {
+  color: #0066D6;
+  border-bottom-color: #007AFF;
+}
+
+/* 强调 */
+.reader-body strong {
+  font-weight: 700;
+  color: var(--c-text);
+}
+
+.reader-body em {
+  font-style: italic;
+  color: var(--c-text-lighter);
+}
+
+/* ⚠️ 关键：:not() 排除标注类名 */
+.reader-body mark:not(.annotated-word):not(.annotated-word-subtle):not(.annotated-sentence):not(.annotated-sentence-subtle) {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* 删除线 */
+.reader-body del {
+  color: var(--c-text-lighter);
+}
+
+/* 上下标 */
+.reader-body sup { font-size: 0.75em; }
+.reader-body sub { font-size: 0.75em; }
+
+/* 键盘标记 */
+.reader-body kbd {
+  background: var(--c-bg-lighter);
+  border: 1px solid #d1d5db;
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.85em;
+  font-family: inherit;
+}
+
+/* 详情/摘要 */
+.reader-body details {
+  margin: 1rem 0;
+  padding: 0.8rem 1rem;
+  background: var(--c-bg-lighter);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+}
+
+.reader-body summary {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 脚注 */
+.reader-body .footnotes {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--c-border);
+  font-size: 0.88em;
+  color: var(--c-text-lighter);
+}

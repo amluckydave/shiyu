@@ -1,0 +1,235 @@
+/* ═══════════════════════════════════════════════════
+   内容编辑器模态框样式
+   ═══════════════════════════════════════════════════ */
+
+.content-editor-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: ce-fade-in 0.2s ease;
+}
+
+@keyframes ce-fade-in {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0);
+    -webkit-backdrop-filter: blur(0);
+  }
+}
+
+.content-editor-modal {
+  width: 94vw;
+  height: 90vh;
+  background: var(--c-bg-light);
+  border-radius: 16px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: card-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, opacity;
+}
+
+@keyframes card-pop {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── 顶部工具栏 ── */
+.ce-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-bg-lighter);
+  flex-shrink: 0;
+}
+
+.ce-title-input {
+  flex: 1;
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: inherit;
+  color: var(--c-text);
+  background: var(--c-bg-light);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.ce-title-input:focus {
+  border-color: #007AFF;
+  box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+}
+
+.ce-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.ce-btn-save {
+  background: linear-gradient(135deg, #007AFF, #0066D6);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 122, 255, 0.25);
+}
+
+.ce-btn-save:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.35);
+}
+
+.ce-btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ce-btn-close {
+  background: var(--c-border-light, #f1f5f9);
+  color: var(--c-text-lighter);
+  border: 1px solid var(--c-border);
+}
+
+.ce-btn-close:hover {
+  background: var(--c-border);
+  color: var(--c-text-lighter);
+}
+
+.ce-save-hint {
+  font-size: 0.75rem;
+  color: var(--c-text-lighter);
+}
+
+/* ── md-editor-v3 容器 ── */
+.ce-editor-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* 让 md-editor-v3 填满容器 */
+.ce-editor-wrapper .md-editor {
+  height: 100% !important;
+  border: none;
+  border-radius: 0;
+}
+
+/* 统一编辑区和预览区字体与阅读器一致 (Times New Roman) */
+.ce-editor-wrapper .md-editor-input-wrapper textarea,
+.ce-editor-wrapper .md-editor-input-wrapper .cm-editor,
+.ce-editor-wrapper .md-editor-input-wrapper .cm-content {
+  font-family: var(--font-serif) !important;
+  font-size: 1.1rem !important;
+  line-height: 1.9 !important;
+  color: var(--c-text);
+}
+
+.ce-editor-wrapper .md-editor-preview {
+  font-family: var(--font-serif) !important;
+  font-size: 1.1rem !important;
+  line-height: 1.9 !important;
+  color: var(--c-text);
+}
+
+/* 预览区英文单词不拆分，按词边界换行 */
+.ce-editor-wrapper .md-editor-preview-wrapper,
+.ce-editor-wrapper .md-editor-preview {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+}
+
+/* 预览区顶部不被裁掉 */
+.ce-editor-wrapper .md-editor-preview {
+  padding-top: 8px !important;
+}
+
+/* 段落间距与编辑器空行高度对齐：编辑器空行 = fontSize × lineHeight = 1.1rem × 1.9 */
+.ce-editor-wrapper .md-editor-preview p {
+  margin: calc(1.1rem * 1.9) 0 !important;
+}
+
+/* 预览区图片：精确匹配编辑器一行高度，消除滚动偏差 */
+.ce-editor-wrapper .md-editor-preview img {
+  display: inline-block;
+  max-height: 1.1em;
+  max-width: 30%;
+  object-fit: cover;
+  border-radius: 2px;
+  margin: 0;
+  padding: 0;
+  vertical-align: text-bottom;
+  cursor: zoom-in;
+  outline: 1px solid var(--c-border);
+  transition: all 0.25s ease;
+}
+
+/* 消除包裹图片的 <p> 标签额外 margin */
+.ce-editor-wrapper .md-editor-preview p:has(> img) {
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+}
+
+/* 悬停时放大查看完整图片 */
+.ce-editor-wrapper .md-editor-preview img:hover {
+  max-height: 400px;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+  margin: 8px auto;
+  outline: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  cursor: zoom-out;
+}
+
+/* ── 底部状态栏 ── */
+.ce-statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 20px;
+  border-top: 1px solid var(--c-border);
+  background: var(--c-bg-lighter);
+  font-size: 0.75rem;
+  color: var(--c-text-lighter);
+  flex-shrink: 0;
+}
+
+.ce-status-left,
+.ce-status-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ce-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.ce-status-dot.saved { background: #22c55e; }
+.ce-status-dot.modified { background: #f59e0b; }
