@@ -30,9 +30,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;display:fl
 .hero-glow{position:absolute;width:600px;height:400px;background:radial-gradient(ellipse,rgba(99,102,241,.06),transparent 70%);top:10%;left:50%;transform:translateX(-50%);filter:blur(100px);pointer-events:none}
 .hero-logo{width:88px;height:88px;border-radius:22px;margin-bottom:24px;animation:logoFloat 5s ease-in-out infinite}
 @keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.hero h1{font-size:clamp(48px,7vw,80px);font-weight:700;letter-spacing:-.05em;line-height:1.1;color:#fff;margin-bottom:12px;position:relative}
-.hero-tagline{font-size:clamp(20px,3vw,28px);font-weight:600;color:#999;letter-spacing:-.02em;margin-bottom:20px}
-.hero p{font-size:16px;color:#555;max-width:420px;margin-bottom:36px;letter-spacing:-.01em;line-height:1.7}
+.hero h1{font-size:clamp(40px,6vw,64px);font-weight:700;letter-spacing:-.04em;line-height:1.15;color:#fff;margin-bottom:16px;position:relative}
+.hero-dot{color:#444;margin:0 .15em}
+.hero-sub{font-size:17px;color:#555;margin-bottom:40px;letter-spacing:.02em}
 .hero-actions{display:flex;gap:12px}
 .btn{padding:10px 24px;border-radius:10px;font-size:14px;font-weight:500;letter-spacing:-.01em;transition:all .2s ease}
 .btn-primary{background:#fff;color:#000}
