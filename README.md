@@ -24,6 +24,10 @@
 
 基于 **Tauri 2 + Vue 3 + Rust** 构建，数据全部存储在本地，隐私安全。
 
+<div align="center">
+  <img src="public/intro.gif" alt="拾语演示" width="800" />
+</div>
+
 ## ✨ 核心功能
 
 | 功能 | 说明 |
