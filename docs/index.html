@@ -27,7 +27,6 @@
     </a>
     <div class="nav-links">
       <a href="#features">功能</a>
-      <a href="#compare">对比</a>
       <a href="https://github.com/amluckydave/shiyu">GitHub</a>
       <a href="https://github.com/amluckydave/shiyu/releases" style="color:#fff">下载</a>
     </div>
@@ -36,8 +35,8 @@
   <!-- Hero -->
   <div class="hero">
     <div class="hero-glow"></div>
-    <h1>在真实语境中<br/>学英语</h1>
-    <p>AI 驱动的英语阅读学习工具。划词标注、句子解析、间隔复习，一站式搞定。开源免费，数据本地存储。</p>
+    <h1>外刊精读<br/>原版书阅读利器</h1>
+    <p>读 Economist、NYT、英文原版书不再痛苦。AI 划词标注、长难句拆解、FSRS 间隔复习，从读过到记住。开源免费。</p>
     <div class="hero-actions">
       <a href="https://github.com/amluckydave/shiyu/releases" class="btn btn-primary">下载安装</a>
       <a href="https://github.com/amluckydave/shiyu" class="btn btn-ghost">GitHub →</a>
@@ -64,23 +63,23 @@
   <section class="reveal">
     <div class="container">
       <p class="section-label">为什么选择拾语</p>
-      <h2 class="section-heading">直击阅读学习的核心痛点</h2>
+      <h2 class="section-heading">读外刊和原版书的三大痛点，一次解决</h2>
       <div class="section-sub"></div>
       <div class="grid-pain">
         <div class="card">
           <span class="card-icon">📖</span>
-          <h3>不再查一个词断一次</h3>
-          <p>在阅读中直接划词标注，AI 给出语境释义。读完一篇，生词自动进入词库。读就是学。</p>
+          <h3>读外刊不再查一个词断一次</h3>
+          <p>读 Economist、The Atlantic 时直接划词标注，AI 给出语境释义。读完一篇文章，生词自动沉淀进词库。</p>
         </div>
         <div class="card">
           <span class="card-icon">🧠</span>
-          <h3>长难句逐层拆解</h3>
-          <p>AI 用彩色标注剥开主干、从句、修饰成分，搭配结构总述和译文。像有一个老师在逐句精讲。</p>
+          <h3>原版书长难句不再「看不懂」</h3>
+          <p>AI 用彩色标注把主干、从句、修饰成分逐层剥开，搭配结构总述和译文。啃原版书像有老师在逐句精讲。</p>
         </div>
         <div class="card">
           <span class="card-icon">🔁</span>
-          <h3>标注过的不会忘</h3>
-          <p>FSRS 间隔复习按遗忘曲线安排闪卡，配合 TTS 朗读和一键跳回原文语境。从读过变成记住。</p>
+          <h3>查过的词不再「三天就忘」</h3>
+          <p>FSRS 间隔复习按遗忘曲线安排闪卡，配合 TTS 朗读和一键跳回原文语境。从「读过」变成「记住」。</p>
         </div>
       </div>
     </div>
@@ -127,26 +126,6 @@
     </div>
   </section>
 
-  <!-- Comparison -->
-  <section id="compare" class="reveal">
-    <div class="container">
-      <p class="section-label">架构优势</p>
-      <h2 class="section-heading">安装包 7MB，不是 150MB</h2>
-      <p class="section-sub">Tauri 用系统 WebView 替代内置 Chromium</p>
-      <div class="compare">
-        <table>
-          <thead><tr><th>对比项</th><th>Electron</th><th>拾语 (Tauri)</th></tr></thead>
-          <tbody>
-            <tr><td>渲染引擎</td><td>自带 Chromium ~120MB</td><td class="win">系统 WebView · 0 额外体积</td></tr>
-            <tr><td>后端</td><td>Node.js ~30MB</td><td class="win">Rust 编译 · 无运行时</td></tr>
-            <tr><td>安装包</td><td>80 – 150 MB</td><td class="win">~7 MB</td></tr>
-            <tr><td>内存</td><td>200 – 400 MB</td><td class="win">50 – 100 MB</td></tr>
-            <tr><td>安全</td><td>Node.js 全权限</td><td class="win">最小权限白名单</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </section>
 
   <!-- Tech -->
   <section class="reveal">
