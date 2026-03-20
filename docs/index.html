@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>拾语 (Shiyu) — 智能英语学习桌面应用</title>
-  <meta name="description" content="拾语是一款开源的 AI 驱动英语学习桌面应用，支持文章阅读标注、AI 翻译、句子成分解析、FSRS 间隔复习、思维导图等功能。基于 Tauri 2 + Vue 3 + Rust 构建。" />
+  <meta name="description" content="拾语是一款开源的 AI 驱动英语学习桌面应用，支持文章阅读标注、AI 翻译、句子成分解析、FSRS 间隔复习、思维导图等功能。" />
   <link rel="icon" href="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,17 +24,22 @@
     </div>
   </div>
 
-  <!-- Demo -->
-  <section>
+  <!-- Demo Video -->
+  <section class="reveal">
     <h2 class="section-title">产品演示</h2>
     <p class="section-desc">沉浸式阅读 + 智能标注 + AI 解析，一站式英语学习体验</p>
     <div class="demo-wrap">
-      <img src="intro.gif" alt="拾语演示" loading="lazy" />
+      <iframe
+        src="//player.bilibili.com/player.html?bvid=BV1jUw9zTEtb&autoplay=0&high_quality=1&danmaku=0"
+        allowfullscreen
+        style="width:100%;aspect-ratio:16/9;border:none"
+        loading="lazy"
+      ></iframe>
     </div>
   </section>
 
   <!-- Pain Points -->
-  <section>
+  <section class="reveal">
     <h2 class="section-title">为什么选择拾语？</h2>
     <p class="section-desc">直击外刊精读 & 原版书阅读的三大痛点</p>
     <div class="features-grid">
@@ -57,9 +62,9 @@
   </section>
 
   <!-- Features -->
-  <section>
+  <section class="reveal">
     <h2 class="section-title">核心功能</h2>
-    <p class="section-desc">一款应用覆盖英语学习全流程</p>
+    <div class="divider"></div>
     <div class="features-grid">
       <div class="feature-card">
         <span class="feature-icon">📖</span>
@@ -95,27 +100,29 @@
   </section>
 
   <!-- Comparison -->
-  <section>
+  <section class="reveal">
     <h2 class="section-title">为什么更轻量？</h2>
     <p class="section-desc">Tauri vs Electron 架构对比</p>
-    <table class="compare-table">
-      <thead>
-        <tr><th>对比项</th><th>Electron 应用</th><th>拾语 (Tauri)</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>渲染引擎</td><td>自带 Chromium (~120MB)</td><td class="highlight-cell">系统 WebView (0 额外体积)</td></tr>
-        <tr><td>后端运行时</td><td>Node.js (~30MB)</td><td class="highlight-cell">Rust 原生编译，无运行时</td></tr>
-        <tr><td>安装包体积</td><td>80 – 150 MB</td><td class="highlight-cell">~7 MB</td></tr>
-        <tr><td>运行内存</td><td>200 – 400 MB</td><td class="highlight-cell">50 – 100 MB</td></tr>
-        <tr><td>安全模型</td><td>Node.js 全权限</td><td class="highlight-cell">Rust + 最小权限白名单</td></tr>
-      </tbody>
-    </table>
+    <div class="compare-wrap">
+      <table class="compare-table">
+        <thead>
+          <tr><th>对比项</th><th>Electron 应用</th><th>拾语 (Tauri)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>渲染引擎</td><td>自带 Chromium (~120MB)</td><td class="highlight-cell">系统 WebView (0 额外体积)</td></tr>
+          <tr><td>后端运行时</td><td>Node.js (~30MB)</td><td class="highlight-cell">Rust 原生编译，无运行时</td></tr>
+          <tr><td>安装包体积</td><td>80 – 150 MB</td><td class="highlight-cell">~7 MB</td></tr>
+          <tr><td>运行内存</td><td>200 – 400 MB</td><td class="highlight-cell">50 – 100 MB</td></tr>
+          <tr><td>安全模型</td><td>Node.js 全权限</td><td class="highlight-cell">Rust + 最小权限白名单</td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 
   <!-- Tech Stack -->
-  <section>
+  <section class="reveal">
     <h2 class="section-title">技术栈</h2>
-    <p class="section-desc">现代、高性能、安全</p>
+    <div class="divider"></div>
     <div class="tech-pills">
       <span class="tech-pill">Tauri 2</span>
       <span class="tech-pill">Vue 3</span>
@@ -130,7 +137,7 @@
   </section>
 
   <!-- CTA -->
-  <div class="cta">
+  <div class="cta reveal">
     <h2>开始你的英语学习之旅</h2>
     <p>开源免费 · 数据本地存储 · 隐私安全</p>
     <div class="hero-btns">
@@ -144,6 +151,14 @@
     <p>MIT License © 2026 <a href="https://github.com/amluckydave">amluckydave</a> · 
     友情链接：<a href="https://linux.do/" target="_blank">LINUX DO</a></p>
   </footer>
+
+  <!-- Scroll Reveal -->
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') })
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
 
 </body>
 </html>
