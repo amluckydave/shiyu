@@ -1,6 +1,14 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#000;color:#ededed;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:#050507;color:#ededed;line-height:1.6;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* ── Animated aurora bg ── */
+.aurora{position:fixed;inset:0;z-index:-1;overflow:hidden;background:#050507}
+.aurora span{position:absolute;border-radius:50%;filter:blur(120px);opacity:.35;animation:drift 20s ease-in-out infinite alternate}
+.aurora .a1{width:50vw;height:50vw;background:radial-gradient(circle,rgba(99,102,241,.18),transparent 70%);top:-10%;left:-10%;animation-duration:22s}
+.aurora .a2{width:45vw;height:45vw;background:radial-gradient(circle,rgba(6,182,212,.12),transparent 70%);bottom:-15%;right:-10%;animation-duration:18s;animation-delay:-5s}
+.aurora .a3{width:35vw;height:35vw;background:radial-gradient(circle,rgba(168,85,247,.1),transparent 70%);top:40%;left:50%;animation-duration:25s;animation-delay:-10s}
+@keyframes drift{0%{transform:translate(0,0) scale(1)}25%{transform:translate(5vw,-8vh) scale(1.1)}50%{transform:translate(-3vw,6vh) scale(.95)}75%{transform:translate(8vw,3vh) scale(1.05)}100%{transform:translate(-5vw,-5vh) scale(1)}}
 a{color:inherit;text-decoration:none}
 
 /* ── Layout ── */
@@ -11,7 +19,7 @@ a{color:inherit;text-decoration:none}
 .reveal.visible{opacity:1;transform:none}
 
 /* ── Nav ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);background:rgba(0,0,0,.7);border-bottom:1px solid rgba(255,255,255,.06)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);background:rgba(5,5,7,.75);border-bottom:1px solid rgba(255,255,255,.06)}
 .nav-logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;letter-spacing:-.02em}
 .nav-logo img{width:28px;height:28px;border-radius:7px}
 .nav-links{display:flex;gap:24px;font-size:14px;color:#888}
@@ -19,7 +27,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;display:fl
 
 /* ── Hero ── */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
-.hero-glow{position:absolute;width:600px;height:400px;background:radial-gradient(ellipse,rgba(99,102,241,.08),transparent 70%);top:10%;left:50%;transform:translateX(-50%);filter:blur(80px);pointer-events:none}
+.hero-glow{position:absolute;width:600px;height:400px;background:radial-gradient(ellipse,rgba(99,102,241,.06),transparent 70%);top:10%;left:50%;transform:translateX(-50%);filter:blur(100px);pointer-events:none}
 .hero h1{font-size:clamp(40px,6vw,72px);font-weight:700;letter-spacing:-.05em;line-height:1.05;color:#fff;margin-bottom:20px;position:relative}
 .hero p{font-size:17px;color:#666;max-width:420px;margin-bottom:40px;letter-spacing:-.01em;line-height:1.5}
 .hero-actions{display:flex;gap:12px}
@@ -47,7 +55,7 @@ section{padding:120px 24px}
 
 /* ── Feature grid ── */
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
-.grid-3 .card{background:#0a0a0a;padding:40px 32px}
+.grid-3 .card{background:rgba(10,10,14,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:40px 32px}
 .grid-3 .card h3{font-size:16px;font-weight:600;letter-spacing:-.02em;margin-bottom:8px;color:#ededed}
 .grid-3 .card p{font-size:14px;color:#555;line-height:1.6}
 .card-icon{font-size:28px;margin-bottom:16px;display:block}
@@ -55,7 +63,7 @@ section{padding:120px 24px}
 
 /* ── Pain points (larger cards) ── */
 .grid-pain{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden}
-.grid-pain .card{background:#0a0a0a;padding:48px 32px}
+.grid-pain .card{background:rgba(10,10,14,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:48px 32px}
 .grid-pain .card h3{font-size:18px;font-weight:600;letter-spacing:-.02em;margin-bottom:10px;color:#fff}
 .grid-pain .card p{font-size:14px;color:#555;line-height:1.7}
 @media(max-width:768px){.grid-pain{grid-template-columns:1fr}}
@@ -63,7 +71,7 @@ section{padding:120px 24px}
 /* ── Comparison ── */
 .compare{border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;max-width:800px;margin:0 auto}
 .compare table{width:100%;border-collapse:collapse;font-size:14px}
-.compare th{text-align:left;padding:14px 20px;font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.06em;background:#0a0a0a;border-bottom:1px solid rgba(255,255,255,.06)}
+.compare th{text-align:left;padding:14px 20px;font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:.06em;background:rgba(10,10,14,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid rgba(255,255,255,.06)}
 .compare td{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.04);color:#777}
 .compare tr:last-child td{border-bottom:none}
 .compare .win{color:#3ecf8e;font-weight:500}
