@@ -28,7 +28,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 24px;display:fl
 /* ── Hero ── */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
 .hero-glow{position:absolute;width:600px;height:400px;background:radial-gradient(ellipse,rgba(99,102,241,.06),transparent 70%);top:10%;left:50%;transform:translateX(-50%);filter:blur(100px);pointer-events:none}
-.hero h1{font-size:clamp(40px,6vw,72px);font-weight:700;letter-spacing:-.05em;line-height:1.05;color:#fff;margin-bottom:20px;position:relative}
+.hero-logo{width:88px;height:88px;border-radius:22px;margin-bottom:24px;animation:logoFloat 5s ease-in-out infinite}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hero h1{font-size:clamp(40px,6vw,72px);font-weight:700;letter-spacing:-.05em;line-height:1.2;color:#fff;margin-bottom:20px;position:relative}
 .hero p{font-size:17px;color:#666;max-width:420px;margin-bottom:40px;letter-spacing:-.01em;line-height:1.5}
 .hero-actions{display:flex;gap:12px}
 .btn{padding:10px 24px;border-radius:10px;font-size:14px;font-weight:500;letter-spacing:-.01em;transition:all .2s ease}
