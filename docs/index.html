@@ -3,162 +3,180 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>拾语 (Shiyu) — 智能英语学习桌面应用</title>
-  <meta name="description" content="拾语是一款开源的 AI 驱动英语学习桌面应用，支持文章阅读标注、AI 翻译、句子成分解析、FSRS 间隔复习、思维导图等功能。" />
+  <title>拾语 — 智能英语学习桌面应用</title>
+  <meta name="description" content="开源 AI 英语学习工具。文章阅读标注、句子成分解析、FSRS 间隔复习。基于 Tauri + Rust 构建，安装包仅 7MB。" />
   <link rel="icon" href="logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
+  <!-- Nav -->
+  <nav>
+    <a href="#" class="nav-logo">
+      <img src="logo.png" alt="" /> 拾语
+    </a>
+    <div class="nav-links">
+      <a href="#features">功能</a>
+      <a href="#compare">对比</a>
+      <a href="https://github.com/amluckydave/shiyu">GitHub</a>
+      <a href="https://github.com/amluckydave/shiyu/releases" style="color:#fff">下载</a>
+    </div>
+  </nav>
+
   <!-- Hero -->
   <div class="hero">
-    <img src="logo.png" alt="拾语" class="hero-logo" />
-    <h1>拾语 <span>(Shiyu)</span></h1>
-    <p class="hero-sub">在真实语境中高效学习英语 · AI 驱动 · 本地优先 · 开源免费</p>
-    <div class="hero-btns">
-      <a href="https://github.com/amluckydave/shiyu/releases" class="btn btn-primary">⬇ 下载安装</a>
-      <a href="https://github.com/amluckydave/shiyu" class="btn btn-outline">⭐ GitHub</a>
+    <div class="hero-glow"></div>
+    <h1>在真实语境中<br/>学英语</h1>
+    <p>AI 驱动的英语阅读学习工具。划词标注、句子解析、间隔复习，一站式搞定。开源免费，数据本地存储。</p>
+    <div class="hero-actions">
+      <a href="https://github.com/amluckydave/shiyu/releases" class="btn btn-primary">下载安装</a>
+      <a href="https://github.com/amluckydave/shiyu" class="btn btn-ghost">GitHub →</a>
     </div>
   </div>
 
-  <!-- Demo Video -->
+  <!-- Demo  -->
   <section class="reveal">
-    <h2 class="section-title">产品演示</h2>
-    <p class="section-desc">沉浸式阅读 + 智能标注 + AI 解析，一站式英语学习体验</p>
-    <div class="demo-wrap">
-      <iframe
-        src="//player.bilibili.com/player.html?bvid=BV1jUw9zTEtb&autoplay=0&high_quality=1&danmaku=0"
-        allowfullscreen
-        style="width:100%;aspect-ratio:16/9;border:none"
-        loading="lazy"
-      ></iframe>
+    <div class="container">
+      <div class="window">
+        <div class="window-bar">
+          <span class="window-dot dot-red"></span>
+          <span class="window-dot dot-yellow"></span>
+          <span class="window-dot dot-green"></span>
+        </div>
+        <div class="window-body">
+          <iframe src="//player.bilibili.com/player.html?bvid=BV1jUw9zTEtb&autoplay=0&high_quality=1&danmaku=0" allowfullscreen loading="lazy"></iframe>
+        </div>
+      </div>
     </div>
   </section>
 
   <!-- Pain Points -->
   <section class="reveal">
-    <h2 class="section-title">为什么选择拾语？</h2>
-    <p class="section-desc">直击外刊精读 & 原版书阅读的三大痛点</p>
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="feature-icon">📖</span>
-        <h3>读外刊不再「查一个词断一次」</h3>
-        <p>直接在阅读中划词标注，AI 实时给出语境释义和句子成分拆解。读完一篇，生词和句子自动沉淀进词库。读就是学，学不离读。</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">🧠</span>
-        <h3>长难句不再「每个词都认识，连起来看不懂」</h3>
-        <p>AI 句子成分解析用彩色标注把主干、从句、修饰成分逐层剥开，搭配结构总述和译文 — 相当于随身英语老师逐句精讲。</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">🔄</span>
-        <h3>标注过的词句不再「读完就忘」</h3>
-        <p>内置 FSRS 间隔复习算法，标注过的每个生词、句子都会按遗忘曲线自动安排闪卡复习。配合 TTS 朗读和一键跳回原文语境。</p>
+    <div class="container">
+      <p class="section-label">为什么选择拾语</p>
+      <h2 class="section-heading">直击阅读学习的核心痛点</h2>
+      <div class="section-sub"></div>
+      <div class="grid-pain">
+        <div class="card">
+          <span class="card-icon">📖</span>
+          <h3>不再查一个词断一次</h3>
+          <p>在阅读中直接划词标注，AI 给出语境释义。读完一篇，生词自动进入词库。读就是学。</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🧠</span>
+          <h3>长难句逐层拆解</h3>
+          <p>AI 用彩色标注剥开主干、从句、修饰成分，搭配结构总述和译文。像有一个老师在逐句精讲。</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔁</span>
+          <h3>标注过的不会忘</h3>
+          <p>FSRS 间隔复习按遗忘曲线安排闪卡，配合 TTS 朗读和一键跳回原文语境。从读过变成记住。</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Features -->
-  <section class="reveal">
-    <h2 class="section-title">核心功能</h2>
-    <div class="divider"></div>
-    <div class="features-grid">
-      <div class="feature-card">
-        <span class="feature-icon">📖</span>
-        <h3>文章阅读 & 标注</h3>
-        <p>沉浸式 Markdown 阅读器，划词添加生词/句子，实时高亮标注</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">🤖</span>
-        <h3>AI 翻译 & 解析</h3>
-        <p>流式翻译，句子成分彩色标注，兼容 DeepSeek / OpenAI</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">🧠</span>
-        <h3>AI 思维导图</h3>
-        <p>一键分析文章结构，中英双语切换，缓存秒开</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">📝</span>
-        <h3>生词本 & 句子库</h3>
-        <p>搜索、批量操作、来源跳转、TTS 神经网络语音朗读</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">🔄</span>
-        <h3>FSRS 间隔复习</h3>
-        <p>FSRS 算法闪卡，4 级评分，键盘快捷操作</p>
-      </div>
-      <div class="feature-card">
-        <span class="feature-icon">📚</span>
-        <h3>EPUB & OCR 导入</h3>
-        <p>EPUB 按章节提取，OCR 图片识别 + AI 校正，一键导入</p>
+  <section id="features" class="reveal">
+    <div class="container">
+      <p class="section-label">功能</p>
+      <h2 class="section-heading">覆盖英语学习全流程</h2>
+      <p class="section-sub">一款应用，从输入到内化</p>
+      <div class="grid-3">
+        <div class="card">
+          <span class="card-icon">📖</span>
+          <h3>文章阅读 & 标注</h3>
+          <p>Markdown 阅读器，划词添加生词和句子，实时高亮</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🤖</span>
+          <h3>AI 翻译 & 解析</h3>
+          <p>流式翻译，句子成分彩色标注，兼容 DeepSeek / OpenAI</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🧠</span>
+          <h3>AI 思维导图</h3>
+          <p>一键分析文章结构，中英双语切换</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">📝</span>
+          <h3>生词本 & 句子库</h3>
+          <p>搜索、批量操作、来源跳转、TTS 朗读</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">🔄</span>
+          <h3>FSRS 间隔复习</h3>
+          <p>FSRS 算法闪卡，4 级评分，键盘快捷操作</p>
+        </div>
+        <div class="card">
+          <span class="card-icon">📚</span>
+          <h3>EPUB & OCR 导入</h3>
+          <p>EPUB 按章节提取，OCR 识别 + AI 校正</p>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- Comparison -->
-  <section class="reveal">
-    <h2 class="section-title">为什么更轻量？</h2>
-    <p class="section-desc">Tauri vs Electron 架构对比</p>
-    <div class="compare-wrap">
-      <table class="compare-table">
-        <thead>
-          <tr><th>对比项</th><th>Electron 应用</th><th>拾语 (Tauri)</th></tr>
-        </thead>
-        <tbody>
-          <tr><td>渲染引擎</td><td>自带 Chromium (~120MB)</td><td class="highlight-cell">系统 WebView (0 额外体积)</td></tr>
-          <tr><td>后端运行时</td><td>Node.js (~30MB)</td><td class="highlight-cell">Rust 原生编译，无运行时</td></tr>
-          <tr><td>安装包体积</td><td>80 – 150 MB</td><td class="highlight-cell">~7 MB</td></tr>
-          <tr><td>运行内存</td><td>200 – 400 MB</td><td class="highlight-cell">50 – 100 MB</td></tr>
-          <tr><td>安全模型</td><td>Node.js 全权限</td><td class="highlight-cell">Rust + 最小权限白名单</td></tr>
-        </tbody>
-      </table>
+  <section id="compare" class="reveal">
+    <div class="container">
+      <p class="section-label">架构优势</p>
+      <h2 class="section-heading">安装包 7MB，不是 150MB</h2>
+      <p class="section-sub">Tauri 用系统 WebView 替代内置 Chromium</p>
+      <div class="compare">
+        <table>
+          <thead><tr><th>对比项</th><th>Electron</th><th>拾语 (Tauri)</th></tr></thead>
+          <tbody>
+            <tr><td>渲染引擎</td><td>自带 Chromium ~120MB</td><td class="win">系统 WebView · 0 额外体积</td></tr>
+            <tr><td>后端</td><td>Node.js ~30MB</td><td class="win">Rust 编译 · 无运行时</td></tr>
+            <tr><td>安装包</td><td>80 – 150 MB</td><td class="win">~7 MB</td></tr>
+            <tr><td>内存</td><td>200 – 400 MB</td><td class="win">50 – 100 MB</td></tr>
+            <tr><td>安全</td><td>Node.js 全权限</td><td class="win">最小权限白名单</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
-  <!-- Tech Stack -->
+  <!-- Tech -->
   <section class="reveal">
-    <h2 class="section-title">技术栈</h2>
-    <div class="divider"></div>
-    <div class="tech-pills">
-      <span class="tech-pill">Tauri 2</span>
-      <span class="tech-pill">Vue 3</span>
-      <span class="tech-pill">Rust</span>
-      <span class="tech-pill">TypeScript</span>
-      <span class="tech-pill">Vite</span>
-      <span class="tech-pill">SQLite</span>
-      <span class="tech-pill">FSRS</span>
-      <span class="tech-pill">Edge TTS</span>
-      <span class="tech-pill">markmap</span>
+    <div class="container">
+      <p class="section-label">技术栈</p>
+      <h2 class="section-heading">现代 · 安全 · 高性能</h2>
+      <p class="section-sub"></p>
+      <div class="pills">
+        <span class="pill">Tauri 2</span>
+        <span class="pill">Vue 3</span>
+        <span class="pill">Rust</span>
+        <span class="pill">TypeScript</span>
+        <span class="pill">SQLite</span>
+        <span class="pill">FSRS</span>
+        <span class="pill">Edge TTS</span>
+        <span class="pill">markmap</span>
+      </div>
     </div>
   </section>
 
   <!-- CTA -->
   <div class="cta reveal">
     <h2>开始你的英语学习之旅</h2>
-    <p>开源免费 · 数据本地存储 · 隐私安全</p>
-    <div class="hero-btns">
-      <a href="https://github.com/amluckydave/shiyu/releases" class="btn btn-primary">⬇ 立即下载</a>
-      <a href="https://github.com/amluckydave/shiyu" class="btn btn-outline">⭐ Star on GitHub</a>
+    <p>开源免费 · 隐私安全 · Windows & macOS</p>
+    <div class="hero-actions" style="justify-content:center">
+      <a href="https://github.com/amluckydave/shiyu/releases" class="btn btn-primary">下载安装</a>
+      <a href="https://github.com/amluckydave/shiyu" class="btn btn-ghost">Star on GitHub →</a>
     </div>
   </div>
 
-  <!-- Footer -->
   <footer>
-    <p>MIT License © 2026 <a href="https://github.com/amluckydave">amluckydave</a> · 
-    友情链接：<a href="https://linux.do/" target="_blank">LINUX DO</a></p>
+    MIT © 2026 <a href="https://github.com/amluckydave">amluckydave</a> · <a href="https://linux.do/" target="_blank">LINUX DO</a>
   </footer>
 
-  <!-- Scroll Reveal -->
   <script>
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible') })
-    }, { threshold: 0.12 });
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  const o=new IntersectionObserver(e=>{e.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.1});
+  document.querySelectorAll('.reveal').forEach(e=>o.observe(e));
   </script>
-
 </body>
 </html>
