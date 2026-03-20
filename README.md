@@ -9,10 +9,7 @@
   [![Version](https://img.shields.io/badge/version-0.2.3-brightgreen.svg)](https://github.com/amluckydave/shiyu/releases)
   [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
   [![Tauri](https://img.shields.io/badge/Tauri-2-24C8D8?logo=tauri&logoColor=white)](https://v2.tauri.app)
-  [![Vue](https://img.shields.io/badge/Vue-3-4FC08D?logo=vuedotjs&logoColor=white)](https://vuejs.org)
-  [![Rust](https://img.shields.io/badge/Rust-stable-DEA584?logo=rust&logoColor=white)](https://www.rust-lang.org)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
-  [![Platform](https://img.shields.io/badge/platform-Windows-0078D4?logo=windows&logoColor=white)](https://github.com/amluckydave/shiyu/releases)
+  [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey?logo=apple&logoColor=white)](https://github.com/amluckydave/shiyu/releases)
 
 </div>
 
