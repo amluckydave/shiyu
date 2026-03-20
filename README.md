@@ -1,8 +1,9 @@
 <div align="center">
   <img src="public/logo.png" alt="拾语" width="120" />
   <h1>拾语 (Shiyu)</h1>
-  <p><strong>智能英语学习桌面应用</strong></p>
-  <p>在真实语境中高效学习英语 · AI 驱动 · 本地优先</p>
+  <p><strong>外刊精读 · 原版书阅读利器</strong></p>
+  <p>AI 划词标注 · 长难句拆解 · FSRS 间隔复习 · 开源免费</p>
+  <p><a href="https://amluckydave.github.io/shiyu/">🌐 官网</a></p>
 
   <br/>
 
